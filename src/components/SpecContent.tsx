@@ -4,12 +4,12 @@ import { Shield, Layers, BookOpen, Lock, Eye, Wrench, Box, Zap, FileCode } from 
 
 const H1 = ({ id, children }: { id?: string; children: React.ReactNode }) => (
   <h1 id={id} className="text-3xl sm:text-4xl font-heading font-bold text-white mb-6 tracking-tight">
-    <span className="bg-gradient-to-r from-austral-accent via-austral-accent-2 to-austral-accent-3 bg-clip-text text-transparent">{children}</span>
+    <span className="bg-gradient-to-br from-austral-primary to-austral-pink bg-clip-text text-transparent">{children}</span>
   </h1>
 );
 const H2 = ({ id, children }: { id?: string; children: React.ReactNode }) => (
   <h2 id={id} className="text-2xl font-heading font-semibold text-white mt-12 mb-4 flex items-center gap-2">
-    <span className="w-1 h-6 rounded bg-gradient-to-b from-austral-accent to-austral-accent-2 inline-block" />
+    <span className="w-1 h-6 rounded bg-gradient-to-br from-austral-primary to-austral-pink inline-block" />
     {children}
   </h2>
 );
@@ -34,16 +34,13 @@ export default function SpecContent() {
     <div className="flex-1 min-w-0 pb-24">
       {/* Hero Section */}
       <section className="relative py-20 pt-2 mb-20 text-center animate__animated animate__fadeIn">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-austral-accent/5 rounded-full blur-[120px] -z-10" />
-        <img src="/logo.png" alt="Austral Logo" className="w-[80%] max-w-[450px] mx-auto mb-2 drop-shadow-[0_0_30px_rgba(96,165,250,0.2)] logo-float" />
+        <img src="/logo.png" alt="Austral Logo" className="w-[80%] max-w-[400px] mx-auto mb-2 logo-float" />
         <div className="relative">
-          <p className="text-2xl text-austral-text-muted max-w-3xl mx-auto mb-10 leading-relaxed px-4">
+          <p className="text-2xl text-austral-text-muted max-w-3xl mx-auto mb-6 leading-relaxed px-4">
             A systems programming language with <span className="text-white font-semibold">linear types</span> and <span className="text-white font-semibold">capability-based security</span>.
           </p>
           <div className="flex items-center justify-center gap-6 text-sm">
-            <span className="text-austral-text-muted">Spec version <span className="text-austral-accent font-mono">0.1.0</span></span>
-            <span className="w-1 h-1 rounded-full bg-austral-border" />
-            <span className="text-austral-text-muted">By <span className="text-austral-accent">Fernando Borretti</span></span>
+            <span className="text-austral-text-muted">By <span className="text-austral-accent"><a href="https://borretti.me" target="_blank">Fernando Borretti</a></span></span>
           </div>
         </div>
         <div className="glow-line mt-20 max-w-2xl mx-auto opacity-50" />
@@ -71,7 +68,7 @@ export default function SpecContent() {
             { icon: <Zap size={24} />, title: 'Strictness', desc: 'Austral is for building pyramids: strict, rigid, crystalline, and brittle by design. It is not for exploratory scripting.', extra: 'The language forces discipline to produce understandable and maintainable artifacts.' }
           ].map((g, i) => (
             <div key={i} className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-austral-accent/20 to-austral-accent-2/20 rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000" />
+              <div className="absolute -inset-1 bg-gradient-to-br from-austral-primary/20 to-austral-pink/20 rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000" />
               <div className="relative bg-austral-surface border border-austral-border rounded-2xl p-8 leading-relaxed">
                 <div className="flex flex-col md:flex-row gap-6">
                   <div className="shrink-0 w-12 h-12 rounded-xl bg-austral-accent/10 flex items-center justify-center text-austral-accent group-hover:scale-110 transition-transform duration-500">{g.icon}</div>

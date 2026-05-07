@@ -12,6 +12,16 @@ dist
 dist-ssr
 *.local
 
+# Environments
+.env
+.env.local
+.env.*
+!.env.example
+
+# Large Files (Videos)
+*.mp4
+blog/medias/videos/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

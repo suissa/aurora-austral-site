@@ -1,0 +1,16 @@
+{
+  "name": "@purecore-ts/one-llm-4-all",
+  "version": "3.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

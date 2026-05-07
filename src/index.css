@@ -2,20 +2,22 @@
 @import "animate.css";
 
 @theme {
-  --color-austral-bg: #0a0e17;
+  --color-austral-bg: #000412;
   --color-austral-surface: #111827;
   --color-austral-surface-2: #1a2236;
   --color-austral-border: #1e293b;
   --color-austral-border-glow: #3b82f620;
   --color-austral-text: #e2e8f0;
   --color-austral-text-muted: #94a3b8;
-  --color-austral-accent: #60a5fa;
-  --color-austral-accent-2: #a78bfa;
-  --color-austral-accent-3: #34d399;
+  --color-austral-primary: #3cd8e4;
+  --color-austral-secondary: #6951e0;
+  --color-austral-vault-accent: #9f3ee0;
+  --color-austral-sidebar-info: #878787;
+  --color-austral-pink: #f472b6;
   --color-austral-code-bg: #0d1117;
   --color-austral-code-header: #161b22;
   --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
-  --font-heading: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-heading: "Outfit", "Space Grotesk", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
 }
 
@@ -88,7 +90,7 @@
 /* Glowing lines */
 .glow-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-austral-accent), var(--color-austral-accent-2), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-austral-accent), var(--color-austral-pink), transparent);
   opacity: 0.5;
 }
 
@@ -146,7 +148,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-austral-accent), var(--color-austral-accent-2));
+  background: linear-gradient(90deg, var(--color-austral-accent), var(--color-austral-pink));
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   border-radius: 1px;
 }

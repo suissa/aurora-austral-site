@@ -1,10 +1,13 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState, useCallback } from 'react';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import SpecContent from './components/SpecContent';
-import Examples from './components/Examples';
-import Projects from './components/Projects';
+import Blog from './pages/Blog';
+import Dashboard from './pages/Dashboard';
+import Author from './pages/Author';
+import Vault from './pages/Vault';
+import PackageDetails from './pages/PackageDetails';
 import WelcomeModal from './components/WelcomeModal';
 import { tocData } from './data/toc';
 
@@ -17,6 +20,7 @@ function flattenIds(items: typeof tocData): string[] {
 function MainLayout({ children }: { children: React.ReactNode }) {
   const [loaded, setLoaded] = useState(false);
   const [activeSection, setActiveSection] = useState('intro');
+  const location = useLocation();
 
   useEffect(() => {
     const timer = setTimeout(() => setLoaded(true), 800);
@@ -42,27 +46,19 @@ function MainLayout({ children }: { children: React.ReactNode }) {
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
-  }, [loaded]);
-
-  const handleNavigate = useCallback((id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-      history.pushState(null, '', `#${id}`);
-    }
-  }, []);
+  }, [loaded, location.pathname]);
 
   return (
     <>
       <div className={`loading-screen ${loaded ? 'loaded' : ''}`}>
         <div className="text-center">
           <div className="loader-ring mx-auto mb-4" />
-          <p className="text-austral-text-muted text-sm font-mono animate-pulse">Loading portal...</p>
+          <p className="text-austral-text-muted text-sm font-mono animate-pulse">Loading Austral...</p>
         </div>
       </div>
 
       <Navbar activeSection={activeSection} />
-      <WelcomeModal />
+      {location.pathname === '/' && <WelcomeModal />}
       {children}
     </>
   );
@@ -73,6 +69,7 @@ export default function App() {
     <Router>
       <MainLayout>
         <Routes>
+          {/* Site Home - Austral Language Documentation */}
           <Route path="/" element={
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 flex gap-8">
               <Sidebar activeSection="intro" onNavigate={(id) => {
@@ -82,8 +79,18 @@ export default function App() {
               <SpecContent />
             </main>
           } />
-          <Route path="/examples" element={<Examples />} />
-          <Route path="/projects" element={<Projects />} />
+          
+          {/* Blog */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:id" element={<Blog />} />
+          <Route path="/blog/author" element={<Author />} />
+          
+          {/* Vault */}
+          <Route path="/vault" element={<Vault />} />
+          <Route path="/vault/:packageName" element={<PackageDetails />} />
+          
+          {/* Management */}
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </MainLayout>
     </Router>

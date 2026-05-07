@@ -1,0 +1,48 @@
+### Study Guide: The Austral Language Specification
+
+This study guide provides a comprehensive review of the Austral programming language, its design philosophy, technical architecture, and security model. It is based on the provided language specification and includes a quiz, essay prompts, and a detailed glossary.
+
+#### Part 1: Short-Answer Quiz
+
+**1\. What is the concept of "fits-in-head simplicity" as defined in the Austral design goals?**  Austral defines simplicity as Kolmogorov complexity: a system is simple if it can be described briefly. "Fits-in-head simplicity" means the language must be simple enough for a single person to understand entirely by reading the specification, thereby reducing language lawyering and making the language easier to implement and reason about.**2\. Why does Austral prioritize "Statement Orientation" over expression-oriented syntax?**  Statement orientation forces code to be structurally simple and requires the programmer to factor out complicated control flow into chains of functions. Unlike mixed or expression-oriented syntaxes, it prevents the creation of unprincipled or "interesting" code where the textual syntax does not match the Abstract Syntax Tree (AST).**3\. Explain the "Use-Once Rule" and its significance in Austral’s linear type system.**  The Use-Once Rule stipulates that a value of a linear type must be consumed exactly once; it cannot be used zero times or multiple times. This rule is enforced at compile time to ensure that resources, such as file handles or memory, are correctly managed and never leaked or accessed after being disposed of.**4\. How do terminating keywords (e.g.,**  **end if**  **,**  **end for**  **) enhance the readability of Austral code?**  Terminating keywords include the name of the construct they close, which helps programmers identify their location in the code without relying on editor folding or manual indentation tracking. This is particularly useful in long functions where multiple levels of nesting would otherwise result in an ambiguous "train" of closing delimiters like curly braces.**5\. What are the two primary "Universes" in Austral, and how do they interact?**  The two universes are "Free" and "Linear." The Free universe contains types that can be used any number of times (like integers or booleans), while the Linear universe contains types representing restricted resources that must be used exactly once.**6\. Describe the function of a "Trust Boundary" in the implementation of linear APIs.**  A trust boundary allows a linear interface to wrap a non-linear interior, such as an unsafe C pointer or a raw integer handle. Inside the boundary, the programmer uses "unsafe" features to manipulate the resource, while the outside interface remains strictly linear, ensuring the client cannot misuse the resource.**7\. Why does Austral reject traditional exception handling (try/catch blocks) for contract violations?**  Austral rejects exceptions because they introduce significant semantic and implementational complexity, create invisible control flow paths, and are fundamentally incompatible with a strict linear type system. Instead, Austral prefers "Terminate Program on Error" (TPOE) to ensure security and prevent the program from entering an inconsistent, exploitable state.**8\. What is the "RootCapability," and how does it facilitate security?**  The RootCapability is the highest-level permission in Austral, passed as the first argument to a program's entry point. It serves as the base of a capability-based security hierarchy, meaning all other restricted actions (like filesystem or network access) must be derived from this unforgeable proof of authority.**9\. How does the "Let-destructure" statement assist in managing linear records?**  Because you cannot extract a single linear field from a record without consuming the entire record, the let-destructure statement is used to "explode" a record into its constituent fields. This allows the programmer to access the values of those fields independently and then either consume them or reassemble them into a new record.**10\. What is the difference between an "Unsafe Module" and a regular module in Austral?**  An unsafe module is specifically marked with the Unsafe\_Module pragma, granting it the ability to access FFI features and the Austral.Memory module. These modules are intended to be the only places where capability-insecure code exists, allowing the build system to easily identify and audit the "unsafe" portions of a dependency tree.
+
+#### Part 2: Answer Key
+
+1. **Fits-in-head simplicity:**  System can be described briefly; one person can learn the entire spec; prevents language lawyering.  
+2. **Statement Orientation:**  Forces structural simplicity; factors out complex flow; avoids "hanging" code and AST mismatches.  
+3. **Use-Once Rule:**  Mandatory single use of linear types; prevents leaks (0 uses) and double-frees (2+ uses); compile-time enforcement.  
+4. **Terminating Keywords:**  Makes code more readable by explicitly labeling the end of blocks; prevents confusion in deeply nested logic.  
+5. **Universes:**  Free (unrestricted, copyable) and Linear (restricted, resources); Linear types are viral and cannot be placed inside Free types.  
+6. **Trust Boundary:**  Wraps non-linear/unsafe handles in a linear shell; ensures safety for the client while allowing necessary internal mutations.  
+7. **Rejection of Exceptions:**  Reduces complexity; avoids "double throw" problems; prevents attackers from exploiting recovery code; maintains linear type guarantees.  
+8. **RootCapability:**  Entry point parameter; unforgeable proof of authority; base of the hierarchical permission system.  
+9. **Let-destructure:**  Dismantles linear records into individual variables; necessary because linear fields cannot be accessed via standard dot notation without consuming the whole record.  
+10. **Unsafe Module:**  Marked with a pragma; allowed to use FFI and memory manipulation; limits the audit surface for security.
+
+#### Part 3: Essay Questions
+
+1. **The Trade-off of Simplicity:**  Evaluate Austral's goal of "fits-in-head simplicity" against the requirements of modern systems programming. Does the sacrifice of programmer ergonomics (e.g., lack of garbage collection and exceptions) result in a more robust system, or does it place too much burden on the developer?  
+2. **Linear Logic in Practice:**  Discuss how Austral's linear type system solves the "Use-After-Free" and "Double Free" problems compared to the approach taken by Rust's borrow checker. Focus on the differences in implementation complexity and the "learning curve" for the programmer.  
+3. **Capability-Based Security and Supply Chain Risks:**  Analyze the potential for capability-based security to mitigate supply chain attacks. How does requiring explicit capabilities in function signatures change the way third-party libraries are audited and integrated?  
+4. **Error Handling Philosophies:**  Compare Austral's "Terminate Program on Error" (TPOE) approach with the "Raise Exception on Error" (REOE) model found in languages like C++ or Java. Discuss the security implications of attempting to recover from a contract violation versus crashing immediately.  
+5. **The Module System and Parallel Development:**  Explain how the strict separation between Module Interfaces and Module Bodies supports the development of large-scale software systems. Specifically, discuss how type-checking against interfaces before implementation facilitates team collaboration.
+
+#### Part 4: Glossary of Key Terms
+
+Term,Definition  
+Affine Type,"A ""weakening"" of linear types that allows a value to be used  at most  once (can be used zero times). Often used with implicit destructors."  
+Borrowing,A mechanism (stolen from Rust) that allows a linear value to be treated as free within a delineated context through read-only or mutable references.  
+Capability,"A value representing an unforgeable proof of authority to perform a specific action, such as accessing the filesystem."  
+Declared Linear,"A type explicitly marked as belonging to the Linear universe by the programmer, even if it only contains free types."  
+Free Universe,"The set of unrestricted types (e.g., Int32, Bool) that can be copied or discarded any number of times."  
+Linear Type,A type whose values must be used exactly once. Used to represent resources like pointers and file handles.  
+Linear Universe,The set of types that are restricted by the Use-Once rule.  
+Module Body,The file containing private declarations and the actual implementation of the module's logic.  
+Module Interface,"The file containing public declarations accessible to other modules; it defines the ""API"" of the module."  
+Opaque Constant,"A constant declared in an interface without a value, which must be defined in the corresponding module body."  
+RootCapability,"The top-level permission value passed to the program entry point, from which all other capabilities are derived."  
+Statement-Oriented,"A syntax where statements and expressions are distinct categories, and code structure is primarily defined by statements."  
+Structurally Linear,"A type that is linear because it contains at least one other linear type (e.g., a record with a linear field)."  
+Type Universe,"A ""type of a type"" that determines the usage rules (Free or Linear) for all instances of that type."  
+Typeclass,A mechanism for ad-hoc polymorphism (similar to Haskell) that allows different types to implement the same set of methods.  
+Unsafe Module,"A module permitted to use FFI and memory manipulation, marked explicitly to allow for targeted security auditing."  
