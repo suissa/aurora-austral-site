@@ -26,11 +26,13 @@ export default function Dashboard() {
     author: 'Suissa'
   });
 
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedFile(file);
       const folder = formData.type === 'image' ? 'images' : 
                      formData.type === 'video' ? 'videos' : 
                      formData.type === 'audio' ? 'audios' : 'slides';
@@ -57,8 +59,22 @@ export default function Dashboard() {
     setLoading(true);
 
     try {
-      const translated = await translatePost(formData.content, 'English');
+      // 1. Upload file if selected
+      if (selectedFile) {
+        const folder = formData.type === 'image' ? 'images' : 
+                       formData.type === 'video' ? 'videos' : 
+                       formData.type === 'audio' ? 'audios' : 'slides';
+        
+        const uploadRes = await fetch(`/api/upload-media?filename=${encodeURIComponent(selectedFile.name)}&folder=${folder}`, {
+          method: 'POST',
+          body: selectedFile
+        });
+        
+        if (!uploadRes.ok) throw new Error('Failed to upload media file');
+      }
 
+      // 2. Translate and Save JSON
+      const translated = await translatePost(formData.content, 'English');
       const now = Date.now();
       const newPost: BlogPost = {
         id: editingPost?.id || formData.title.toLowerCase().replace(/\s+/g, '_'),
@@ -69,25 +85,25 @@ export default function Dashboard() {
         dateUpdated: now,
         views: editingPost?.views || 0,
         medias: editingPost?.medias || [{ type: formData.type, url: formData.mediaUrl }],
-        author: formData.author
+        author: formData.author,
+        language: 'en'
       };
 
       blogStore.savePost(newPost);
       setPosts(blogStore.getPosts());
       setEditingPost(null);
       
-      const jsonContent = JSON.stringify(newPost, null, 2);
+      const response = await fetch('/api/save-post', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPost)
+      });
 
-      // Create a blob and download it
-      const blob = new Blob([jsonContent], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${newPost.id}.json`;
-      a.click();
+      if (!response.ok) throw new Error('Failed to save post data');
 
       setFormData({ title: '', content: '', type: 'text', mediaUrl: '', author: 'Suissa' });
-      alert('Post saved and exported as .json! Move it to blog/articles/');
+      setSelectedFile(null);
+      alert('Post and media saved successfully!');
     } catch (err) {
       console.error(err);
       alert('Error saving post.');
