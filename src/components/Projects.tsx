@@ -83,7 +83,7 @@ export default function Projects() {
           The Austral ecosystem is growing. Join us in building the next generation of safe, reliable software.
         </p>
         <a href="https://github.com/aurora-austral" target="_blank"><button className="group px-8 py-3 rounded-xl bg-austral-accent font-bold hover:scale-105 transition-all shadow-lg shadow-austral-accent/25">
-          <span className="text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-gray-200 group-hover:to-austral-primary bg-[length:200%_auto] hover:animate-pulse transition-all duration-300">
+          <span className="text-white group-hover:text-transparent bg-clip-text bg-gradient-to-r from-white via-austral-primary to-white animate-gradient-text-hover transition-all duration-300">
             Join the Aurora Austral Community
           </span>
         </button></a>

@@ -226,3 +226,18 @@
 .animate-slide-out-right {
   animation: slide-out-right 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
 }
+
+/* Gradient Text Animation */
+@keyframes text-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-text-hover {
+  background-size: 200% auto;
+}
+
+.group:hover .animate-gradient-text-hover {
+  animation: text-gradient 3s linear infinite;
+}
