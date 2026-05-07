@@ -79,35 +79,41 @@ export default function Dashboard() {
         translated = await translatePost(formData.content, 'English');
       }
 
+      // 3. Save JSON via API
       const now = Date.now();
       const newPost: BlogPost = {
         id: editingPost?.id || formData.title.toLowerCase().replace(/\s+/g, '_'),
         title: formData.title,
         content: formData.content,
-        translations: { 'en': translated },
         dateCreated: editingPost?.dateCreated || now,
         dateUpdated: now,
         views: editingPost?.views || 0,
-        medias: editingPost?.medias || [{ type: formData.type, url: formData.mediaUrl }],
-        author: formData.author,
+        medias: [{ 
+          type: formData.type, 
+          url: selectedFile ? `/blog/medias/${formData.type === 'image' ? 'images' : formData.type === 'video' ? 'videos' : formData.type === 'audio' ? 'audios' : 'slides'}/${selectedFile.name}` : formData.mediaUrl 
+        }],
+        author: 'Suissa',
+        translations: translated ? { en: translated } : (editingPost?.translations || {}),
         language: 'en'
       };
 
-      blogStore.savePost(newPost);
-      setPosts(blogStore.getPosts());
-      setEditingPost(null);
-      
-      const response = await fetch('/api/save-post', {
+      const saveRes = await fetch('/api/save-post', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newPost)
       });
 
-      if (!response.ok) throw new Error('Failed to save post data');
+      if (!saveRes.ok) throw new Error('Failed to save post JSON');
 
+      alert('Post published successfully!');
+      
+      // Clear form and reload posts from server
       setFormData({ title: '', content: '', type: 'text', mediaUrl: '', author: 'Suissa' });
       setSelectedFile(null);
-      alert('Post and media saved successfully!');
+      setEditingPost(null);
+      
+      // Force a reload of the blogStore data from the server files
+      setPosts(blogStore.getPosts());
     } catch (err) {
       console.error(err);
       alert('Error saving post.');

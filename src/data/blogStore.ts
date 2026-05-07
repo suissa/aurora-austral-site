@@ -76,7 +76,8 @@ export const blogStore = {
           ...data, 
           translations: data.translations || {}, 
           author: data.author || 'Suissa',
-          language: data.language || 'en'
+          language: data.language || 'en',
+          dateCreated: data.dateCreated || 0 // Use saved date or fallback to 0
         });
       }
     } catch (e) {}
@@ -117,7 +118,7 @@ export const blogStore = {
           title: nameWithoutExt.replace(/_/g, ' ').replace(/-/g, ' '),
           content: '', 
           dateCreated: 0, // Auto-generated media posts always at the bottom
-          dateUpdated: Date.now(),
+          dateUpdated: 0,
           views: 0,
           medias: [{ type, url }],
           author: 'Suissa',
@@ -127,33 +128,15 @@ export const blogStore = {
       }
     } catch (e) {}
 
-    // 4. Get posts from localStorage
-    const data = localStorage.getItem(STORAGE_KEY);
-    const localPosts: BlogPost[] = data ? JSON.parse(data) : [];
-
-    // 5. Merge and sort
-    const allPosts = [...staticPosts, ...localPosts];
-    return allPosts.sort((a, b) => b.dateCreated - a.dateCreated);
+    return staticPosts.sort((a, b) => b.dateCreated - a.dateCreated);
   },
 
-  savePost(post: BlogPost) {
-    const posts = this.getLocalPosts();
-    const index = posts.findIndex(p => p.id === post.id);
-    if (index >= 0) {
-      posts[index] = post;
-    } else {
-      posts.unshift(post);
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  savePost(_post: BlogPost) {
+    // No longer saving to localStorage. Source of truth is the file system.
   },
 
-  getLocalPosts(): BlogPost[] {
-    const data = localStorage.getItem(STORAGE_KEY);
-    return data ? JSON.parse(data) : [];
-  },
-
-  deletePost(id: string) {
-    const posts = this.getLocalPosts().filter(p => p.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  deletePost(_id: string) {
+    // Delete only works if we have a backend to delete the file.
+    // For now, we only support creation/update via API.
   }
 };
