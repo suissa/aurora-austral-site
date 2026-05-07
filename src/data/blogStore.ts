@@ -87,7 +87,12 @@ export const blogStore = {
       const mdModules = import.meta.glob('../../blog/articles/*.md', { query: '?raw', eager: true });
       for (const path in mdModules) {
         const content = (mdModules[path] as any).default;
-        staticPosts.push(parseMD(content, path));
+        const post = parseMD(content, path);
+        // Ensure MD posts without explicit date don't jump around
+        if (!post.dateCreated || post.dateCreated > Date.now()) {
+          post.dateCreated = 0;
+        }
+        staticPosts.push(post);
       }
     } catch (e) {}
 
@@ -128,7 +133,7 @@ export const blogStore = {
       }
     } catch (e) {}
 
-    return staticPosts.sort((a, b) => b.dateCreated - a.dateCreated);
+    return staticPosts.sort((a, b) => (Number(b.dateCreated) || 0) - (Number(a.dateCreated) || 0));
   },
 
   savePost(_post: BlogPost) {
