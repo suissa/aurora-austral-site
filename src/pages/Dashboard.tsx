@@ -285,7 +285,8 @@ export default function Dashboard() {
                         accept={
                           formData.type === 'image' ? 'image/*' :
                           formData.type === 'video' ? 'video/*' :
-                          formData.type === 'audio' ? 'audio/*' : '*'
+                          formData.type === 'audio' ? 'audio/*' :
+                          formData.type === 'slides' ? '.pdf' : '*'
                         }
                       />
                       <button

@@ -1,12 +1,149 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { 
   ImageIcon, Mic, Video, FileText, Globe, 
-  Search, ChevronLeft, ArrowRight, Calendar,
-  Eye, Menu, X as CloseIcon, Play, Volume2, Maximize2
+  Search, ChevronLeft, ChevronRight, ArrowRight, Calendar,
+  Eye, Menu, X as CloseIcon, Play, Volume2, Maximize2, Maximize, Minimize, Loader2
 } from 'lucide-react';
 import { blogStore } from '../data/blogStore';
 import type { BlogPost, PostType } from '../data/blogStore';
+
+
+function PDFSlider({ url }: { url: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [pdf, setPdf] = useState<any>(null);
+  const [pageNum, setPageNum] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadPdfJs = async () => {
+      if (!(window as any).pdfjsLib) {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+        document.head.appendChild(script);
+        await new Promise(resolve => script.onload = resolve);
+      }
+      const pdfjsLib = (window as any).pdfjsLib;
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      
+      try {
+        const loadingTask = pdfjsLib.getDocument(url);
+        const pdfDoc = await loadingTask.promise;
+        setPdf(pdfDoc);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error loading PDF:', err);
+      }
+    };
+
+    loadPdfJs();
+  }, [url]);
+
+  useEffect(() => {
+    if (pdf && canvasRef.current) {
+      const renderPage = async () => {
+        const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: isFullscreen ? 2 : 1.5 });
+        const canvas = canvasRef.current!;
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
+        await page.render(renderContext).promise;
+      };
+      renderPage();
+    }
+  }, [pdf, pageNum, isFullscreen]);
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  useEffect(() => {
+    if (!pdf) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') setPageNum(p => Math.max(1, p - 1));
+      if (e.key === 'ArrowRight') setPageNum(p => Math.min(pdf.numPages, p + 1));
+      if (e.key === 'Escape' && isFullscreen) {
+        document.exitFullscreen();
+      }
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [pdf, isFullscreen]);
+
+  if (loading) {
+    return (
+      <div className="aspect-video bg-austral-surface-2 flex items-center justify-center border border-austral-border rounded-2xl">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-austral-primary" size={32} />
+          <p className="text-austral-text-muted text-sm font-mono">Loading assets...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={containerRef} className={`relative group ${isFullscreen ? 'bg-black flex items-center justify-center h-screen' : 'bg-austral-surface-2 border border-austral-border rounded-2xl overflow-hidden'}`}>
+      <canvas ref={canvasRef} className="max-w-full max-h-full mx-auto shadow-2xl" />
+      
+      {/* Controls Overlay */}
+      <div className="absolute inset-x-0 bottom-0 p-6 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button 
+            disabled={pageNum <= 1}
+            onClick={() => setPageNum(p => Math.max(1, p - 1))}
+            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <span className="text-white font-mono text-sm">
+            {pageNum} / {pdf?.numPages || 0}
+          </span>
+          <button 
+            disabled={pageNum >= (pdf?.numPages || 0)}
+            onClick={() => setPageNum(p => Math.min(pdf.numPages, p + 1))}
+            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
+          >
+            <ChevronRight size={24} />
+          </button>
+        </div>
+
+        <button 
+          onClick={toggleFullscreen}
+          className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+        >
+          {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
+        </button>
+      </div>
+
+      {/* Side Hit Areas for navigation */}
+      <div className="absolute inset-y-0 left-0 w-20 cursor-pointer" onClick={() => setPageNum(p => Math.max(1, p - 1))} />
+      <div className="absolute inset-y-0 right-0 w-20 cursor-pointer" onClick={() => setPageNum(p => Math.min(pdf.numPages, p + 1))} />
+    </div>
+  );
+}
 
 export default function Blog() {
   const navigate = useNavigate();
@@ -182,17 +319,7 @@ export default function Blog() {
                 )}
 
                 {media.type === 'slides' && (
-                   <div className="aspect-video bg-austral-surface-2 flex flex-col items-center justify-center p-12 text-center">
-                    <Maximize2 size={48} className="text-austral-primary mb-6 opacity-20" />
-                    <a 
-                      href={media.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="px-6 py-3 rounded-xl bg-austral-primary text-austral-bg font-bold flex items-center gap-2 hover:scale-105 transition-transform"
-                    >
-                      Open Presentation
-                    </a>
-                  </div>
+                  <PDFSlider url={media.url} />
                 )}
               </div>
             ))}

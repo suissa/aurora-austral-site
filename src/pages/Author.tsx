@@ -12,8 +12,8 @@ export default function Author() {
 
   const socialLinks = [
     { name: 'LinkedIn', icon: <Briefcase size={20} />, url: 'https://linkedin.com/in/suissa', color: 'bg-[#0077b5]' },
-    { name: 'Dev.to', icon: <SquareCode size={20} />, url: 'https://dev.to/suissa', color: 'bg-[#000000]' },
-    { name: 'YouTube', icon: <Play size={20} />, url: 'https://youtube.com/@suissacorp', color: 'bg-[#ff0000]' },
+    { name: 'Dev.to', icon: <SquareCode size={20} />, url: 'https://dev.to/fullagenticstack', color: 'bg-[#000000]' },
+    { name: 'YouTube', icon: <Play size={20} />, url: 'https://youtube.com/@fullagenticstack', color: 'bg-[#ff0000]' },
     { name: 'GitHub', icon: <Code2 size={20} />, url: 'https://github.com/suissa', color: 'bg-[#24292e]' },
   ];
 
@@ -38,7 +38,7 @@ export default function Author() {
                 <div className="w-32 h-32 sm:w-40 h-40 rounded-3xl bg-gradient-to-br from-austral-primary to-austral-pink p-1 rotate-3 hover:rotate-0 transition-transform duration-500 shadow-xl shadow-austral-primary/20">
                   <div className="w-full h-full rounded-[1.3rem] bg-austral-surface flex items-center justify-center overflow-hidden">
                     <img 
-                      src="https://avatars.githubusercontent.com/u/102371?v=4" 
+                      src="/author.jpg" 
                       alt="Suissa" 
                       className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700"
                     />
@@ -57,7 +57,7 @@ export default function Author() {
                 </div>
 
                 <p className="text-xl text-austral-text-muted mb-8 leading-relaxed max-w-2xl">
-                  Full-stack Alchemist, Open Source Evangelist, and the first official <span className="text-white font-semibold">Austral Ambassador</span> in Brazil. Crafting linear experiences since 2010.
+                  Full-stack Alchemist, Everything as a Code Evangelist, and the first official <span className="text-white font-semibold">Austral Ambassador</span> in Brazil.
                 </p>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -96,7 +96,7 @@ export default function Author() {
                   Technical Focus
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {['Linear Types', 'Capability Security', 'WASM Orchestration', 'DPoP Auth', 'NATS', 'React/Next.js'].map(tech => (
+                  {['Linear Types', 'Capability Security', 'WASM Orchestration', 'Linear Autentication', 'UbiQ Digital', 'Adaptative Observability Negotiation Protocol', 'Extreme Developer Experience', 'Behavior E2E', 'PQRS (Polyglot Query Responsibility Segregation)', 'AllasCode BE2E Framework', 'Multi-Plane Agents Choreography Architecture', 'Austral', 'Koka', 'Go', 'Rust', 'Zig', 'Gleam', 'Mojo', 'Haskell', 'PROLOG', 'Postgres', 'DuckDb', 'BadgerDb', 'Cassandra', 'Redis', 'Qdrant', 'MongoDb', 'Neo4J', 'ClickHouse', 'Tempo', 'Meilisearch', 'Infiscal', 'QuestDB'].map(tech => (
                     <span key={tech} className="px-4 py-2 rounded-xl bg-austral-bg border border-austral-border text-xs text-austral-text-muted">
                       {tech}
                     </span>
@@ -110,13 +110,13 @@ export default function Author() {
                 <h3 className="text-sm font-bold text-austral-text-muted uppercase tracking-widest mb-6">Contact</h3>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3 text-sm text-white">
-                    <MapPin size={16} className="text-austral-primary" /> Curitiba, Brazil
+                    <MapPin size={16} className="text-austral-primary" /> Itararé, Brazil
                   </li>
                   <li className="flex items-center gap-3 text-sm text-white">
-                    <Mail size={16} className="text-austral-primary" /> suissa@purecore.io
+                    <Mail size={16} className="text-austral-primary" /> suissAI@gmail.com
                   </li>
                   <li className="flex items-center gap-3 text-sm text-white">
-                    <Globe size={16} className="text-austral-primary" /> purecore.io
+                    <Globe size={16} className="text-austral-primary" /> suissAI.dev
                   </li>
                 </ul>
               </div>
