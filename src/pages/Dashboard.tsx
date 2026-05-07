@@ -73,8 +73,12 @@ export default function Dashboard() {
         if (!uploadRes.ok) throw new Error('Failed to upload media file');
       }
 
-      // 2. Translate and Save JSON
-      const translated = await translatePost(formData.content, 'English');
+      // 2. Translate only if content exists
+      let translated = '';
+      if (formData.content.trim()) {
+        translated = await translatePost(formData.content, 'English');
+      }
+
       const now = Date.now();
       const newPost: BlogPost = {
         id: editingPost?.id || formData.title.toLowerCase().replace(/\s+/g, '_'),
@@ -339,7 +343,7 @@ export default function Dashboard() {
                         <h3 className="text-white font-bold text-sm truncate max-w-[150px]">
                           {post.title}
                         </h3>
-                        <p className="text-[10px] text-austral-text-muted">{new Date(post.dateCreated).toLocaleDateString()}</p>
+                        <p className="text-[10px] text-austral-text-muted">{new Date(post.dateCreated).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</p>
                       </div>
                     </div>
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">

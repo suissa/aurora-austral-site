@@ -116,7 +116,7 @@ export const blogStore = {
           id,
           title: nameWithoutExt.replace(/_/g, ' ').replace(/-/g, ' '),
           content: '', 
-          dateCreated: Date.now(), 
+          dateCreated: 0, // Auto-generated media posts always at the bottom
           dateUpdated: Date.now(),
           views: 0,
           medias: [{ type, url }],

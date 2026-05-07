@@ -149,7 +149,7 @@ export default function Blog() {
             </h1>
             
             <div className="flex items-center gap-6 text-xs font-mono text-austral-sidebar-info">
-                <span className="flex items-center gap-1.5"><Calendar size={14} /> {new Date(selectedPost.dateCreated).toLocaleDateString()}</span>
+                <span className="flex items-center gap-1.5"><Calendar size={14} /> {new Date(selectedPost.dateCreated).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>
                 <span className="flex items-center gap-1.5"><Eye size={14} /> {selectedPost.views} views</span>
             </div>
           </header>
@@ -256,7 +256,7 @@ export default function Blog() {
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <span className="text-[10px] font-mono text-austral-sidebar-info uppercase tracking-widest">
-                            {new Date(post.dateCreated).toLocaleDateString()}
+                            {new Date(post.dateCreated).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}
                           </span>
                           <img 
                             src={post.language === 'en' ? '/flag-en.png' : '/flag-pt.png'} 
