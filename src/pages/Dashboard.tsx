@@ -28,6 +28,8 @@ export default function Dashboard() {
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [newPostId, setNewPostId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -113,7 +115,11 @@ export default function Dashboard() {
       setEditingPost(null);
       
       // Force a reload of the blogStore data from the server files
-      setPosts(blogStore.getPosts());
+      const updatedPosts = blogStore.getPosts();
+      const createdId = newPost.id;
+      setNewPostId(createdId);
+      setPosts(updatedPosts);
+      setTimeout(() => setNewPostId(null), 600);
     } catch (err) {
       console.error(err);
       alert('Error saving post.');
@@ -124,8 +130,12 @@ export default function Dashboard() {
 
   const deletePost = (id: string) => {
     if (confirm('Are you sure?')) {
-      blogStore.deletePost(id);
-      setPosts(blogStore.getPosts());
+      setDeletingId(id);
+      setTimeout(() => {
+        blogStore.deletePost(id);
+        setPosts(prev => prev.filter(p => p.id !== id));
+        setDeletingId(null);
+      }, 400);
     }
   };
 
@@ -337,7 +347,11 @@ export default function Dashboard() {
                       author: post.author
                     });
                   }}
-                  className="group bg-austral-surface border border-austral-border rounded-2xl p-4 hover:border-austral-primary transition-all cursor-pointer"
+                  className={`group bg-austral-surface border border-austral-border rounded-2xl p-4 hover:border-austral-primary transition-all cursor-pointer ${
+                    deletingId === post.id ? 'animate-slide-out-right' : 
+                    newPostId === post.id ? 'animate-slide-in-left' : ''
+                  }`}
+                  style={deletingId === post.id ? { pointerEvents: 'none' } : undefined}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">

@@ -1,20 +1,20 @@
 
-import React from 'react';
 import { 
-  Briefcase, Play, Globe, 
-  MapPin, Calendar, Mail, ExternalLink,
-  ChevronLeft, Award, Zap, Code2, SquareCode
-} from 'lucide-react';
+  Globe, 
+  MapPin, Mail, 
+  ChevronLeft, Award, Zap, Code2} from 'lucide-react';
+import { FaLinkedin } from "react-icons/fa6";
+import { FaGithub, FaYoutube, FaDev } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
 export default function Author() {
   const navigate = useNavigate();
 
   const socialLinks = [
-    { name: 'LinkedIn', icon: <Briefcase size={20} />, url: 'https://linkedin.com/in/suissa', color: 'bg-[#0077b5]' },
-    { name: 'Dev.to', icon: <SquareCode size={20} />, url: 'https://dev.to/fullagenticstack', color: 'bg-[#000000]' },
-    { name: 'YouTube', icon: <Play size={20} />, url: 'https://youtube.com/@fullagenticstack', color: 'bg-[#ff0000]' },
-    { name: 'GitHub', icon: <Code2 size={20} />, url: 'https://github.com/suissa', color: 'bg-[#24292e]' },
+    { name: 'LinkedIn', icon: <FaLinkedin size={20} />, url: 'https://linkedin.com/in/suissa', color: 'bg-[#0077b5]' },
+    { name: 'Dev.to', icon: <FaDev size={20} />, url: 'https://dev.to/fullagenticstack', color: 'bg-[#000000]' },
+    { name: 'YouTube', icon: <FaYoutube size={20} />, url: 'https://youtube.com/@fullagenticstack', color: 'bg-[#ff0000]' },
+    { name: 'GitHub', icon: <FaGithub size={20} />, url: 'https://github.com/suissa', color: 'bg-[#24292e]' },
   ];
 
   return (
@@ -121,14 +121,14 @@ export default function Author() {
                 </ul>
               </div>
 
-              <div className="bg-gradient-to-br from-austral-primary to-austral-pink rounded-3xl p-[1px]">
+              {/* <div className="bg-gradient-to-br from-austral-primary to-austral-pink rounded-3xl p-[1px]">
                 <div className="bg-austral-bg rounded-[calc(1.5rem-1px)] p-6 text-center">
                   <p className="text-xs text-austral-text-muted mb-4 italic">"Simplicity is the ultimate sophistication."</p>
                   <button className="text-white text-xs font-bold flex items-center gap-2 mx-auto hover:gap-3 transition-all">
                     Download Resume <ExternalLink size={14} />
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
