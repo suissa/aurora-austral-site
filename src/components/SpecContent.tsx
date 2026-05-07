@@ -46,26 +46,60 @@ export default function SpecContent() {
         <div className="glow-line mt-20 max-w-2xl mx-auto opacity-50" />
       </section>
 
+      {/* Quick Tour - Anchoring Philosophy in Practice */}
+      <Section id="quick-tour">
+        <H1>Quick Tour: The Power of Linearity</H1>
+        <P>Before diving into the theory, let's see why Austral's strictness is your greatest ally. Imagine managing a file. In most languages, forgetting to close it is a common bug. In Austral, it's a <strong>compilation error</strong>.</P>
+        
+        <div className="my-12 bg-austral-surface/30 border border-austral-border/50 rounded-2xl p-8 backdrop-blur-sm">
+          <H2 id="practical-lifecycle">The Resource Lifecycle</H2>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <P>The compiler tracks the state of the <Kw>File</Kw> object. Because it is a <strong>Linear Type</strong>, you must consume it exactly once. Opening a file creates the obligation to close it.</P>
+              <CodeBlock language="rust" filename="main.aum" code={`let f1: File := openFile(cap, "data.txt");
+-- We 'thread' the file through operations
+let f2: File := writeString(f1, "Hello Austral!");
+-- If we stop here, the compiler errors: 'f2' is leaked
+closeFile(f2); -- Obligation met.`} />
+            </div>
+            <div className="flex flex-col items-center gap-8 py-4 bg-black/20 rounded-xl border border-white/5">
+              <div className="w-40 h-10 rounded-full border-2 border-austral-primary flex items-center justify-center bg-austral-primary/5 font-mono text-xs text-white relative">
+                openFile
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-austral-primary" />
+              </div>
+              <div className="w-40 h-10 rounded-full border-2 border-austral-primary flex items-center justify-center bg-austral-primary/5 font-mono text-xs text-white relative">
+                writeString
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-0.5 h-8 bg-austral-primary" />
+              </div>
+              <div className="w-40 h-10 rounded-full border-2 border-austral-pink flex items-center justify-center bg-austral-pink/5 font-mono text-xs text-white">
+                closeFile
+              </div>
+              <p className="text-[10px] text-austral-text-muted italic">Linear Resource Pipeline</p>
+            </div>
+          </div>
+        </div>
+        <P>This "strictness" isn't a hurdle; it's <strong>Peace of Mind</strong>. It's the difference between a car that lets you drive off a cliff and one with autonomous emergency braking that saves your life.</P>
+      </Section>
+
       {/* Introduction */}
       <Section id="intro">
         <H1>Introduction</H1>
         <Quote author="Jorge Luis Borges, El Zahir">Time, which attenuates all memories, sharpens that of the Zahir.</Quote>
-        <P>Austral is a new programming language. It is designed to enable writing code that is secure, readable, maintainable, robust, and long-lasting.</P>
-        <P>Most systems programming languages are either unsafe (like C and C++) or rely on complex automated proof systems or garbage collectors. Austral takes a different path: using simple type system features like linear types and capability-based security to achieve memory safety and resource management without runtime overhead or unpredictable heuristics.</P>
+        <P>Austral is designed for building software that lasts decades. It achieves memory safety and resource management without the overhead of a garbage collector or the complexity of borrow checkers, by using two fundamental pillars: <strong>Linear Types</strong> and <strong>Capability-Based Security</strong>.</P>
       </Section>
 
       {/* Design Goals */}
       <Section id="goals">
         <H1>Design Goals</H1>
-        <P>This section lists the design goals for Austral, and justifies them.</P>
+        <P>These principles guide every decision in Austral's design.</P>
         <div className="space-y-12 my-12">
           {[
-            { icon: <Layers size={24} />, title: 'Simplicity', desc: 'The language must be simple enough for a single person to hold the entire specification in their head. This "fits-in-head" simplicity rules out features like garbage collection or complex static analysis heuristics.', extra: 'Simplicity is measured by Kolmogorov complexity: a system is simple when its description is brief.' },
-            { icon: <Shield size={24} />, title: 'Correctness', desc: 'If the code compiles, it should work. 80% of correctness comes from strong, static typing and ADTs. The remaining 20% is provided by linear types, ensuring absolute resource safety.', extra: 'Exhaustiveness checking for pattern matching is a non-negotiable pillar.' },
-            { icon: <Lock size={24} />, title: 'Security', desc: 'Global state and ambient authority are the enemies of security. Austral uses capability-based security to restrict side effects and sensitive resource access.', extra: 'Memory safety is achieved through linear types, preventing 70% of modern vulnerabilities.' },
-            { icon: <Eye size={24} />, title: 'Readability', desc: 'Code is read far more often than it is written. Austral optimizes for the reader by being explicit rather than implicit, and verbose rather than concise.', extra: 'No type inference (except generics), no implicit conversions, and no operator overloading.' },
-            { icon: <Wrench size={24} />, title: 'Maintainability', desc: 'Software should last decades. We avoid "moving targets" and prioritize a stable, well-defined core that doesn\'t break over time.', extra: 'Separate compilation and a strong module system are essential for scaling.' },
-            { icon: <Zap size={24} />, title: 'Strictness', desc: 'Austral is for building pyramids: strict, rigid, crystalline, and brittle by design. It is not for exploratory scripting.', extra: 'The language forces discipline to produce understandable and maintainable artifacts.' }
+            { icon: <Layers size={24} />, title: 'Simplicity', desc: 'The language must be simple enough for a single person to hold the entire specification in their head. This rules out unpredictable heuristics.', extra: 'Simplicity is measured by Kolmogorov complexity.' },
+            { icon: <Shield size={24} />, title: 'Correctness', desc: 'If the code compiles, it should work. Static typing and exhaustiveness checking are non-negotiable.', extra: 'Linear types provide absolute resource safety.' },
+            { icon: <Lock size={24} />, title: 'Security', desc: 'Global state is the enemy. Access to sensitive resources requires explicit capability tokens.', extra: 'Memory safety is the default, preventing 70% of modern vulnerabilities.' },
+            { icon: <Eye size={24} />, title: 'Readability', desc: 'Code is read far more often than written. We optimize for the reader by being explicit and verbose.', extra: 'No hidden control flow, no implicit conversions.' },
+            { icon: <Wrench size={24} />, title: 'Stability', desc: 'Software should last decades. We avoid "moving targets" and prioritize a stable core.', extra: 'Separate compilation ensures scalability.' },
+            { icon: <Zap size={24} />, title: 'Predictability', desc: 'Austral is for building pyramids: intransigently stable, resilient, and crystalline. It is not for exploratory scripting.', extra: 'The rigidity provides the peace of mind that the structure will not fail.' }
           ].map((g, i) => (
             <div key={i} className="group relative">
               <div className="absolute -inset-1 bg-gradient-to-br from-austral-primary/20 to-austral-pink/20 rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000" />
@@ -84,221 +118,99 @@ export default function SpecContent() {
         </div>
       </Section>
 
-      {/* Rationale */}
-      <Section id="rationale">
-        <H1>Rationale</H1>
-        <P>This section explains and justifies the design of Austral.</P>
-        
-        <H2 id="rationale-syntax">Syntax</H2>
-        <P>Austral syntax follows a statement-oriented, keyword-heavy philosophy inspired by Ada and Modula-3. Each block naming its terminator (e.g., <Kw>end if</Kw>) allows the compiler to provide superior error messages compared to brace-based languages.</P>
-        <CodeBlock language="rust" filename="logic.aum" code={`if condition then
-    for i from 0 to n do
-        doSomething();
-    end for;
-end if;`} />
+      {/* Type System & Rationale Integration */}
+      <Section id="types">
+        <H1>The Type System</H1>
+        <P>Every type in Austral belongs to a <strong>Universe</strong>. This is the foundation of our safety model.</P>
+        <div className="grid sm:grid-cols-2 gap-6 my-6">
+          <div className="bg-austral-surface border border-austral-border rounded-xl p-6">
+            <h4 className="font-heading font-semibold text-austral-primary mb-2">Free Universe</h4>
+            <p className="text-sm text-austral-text-muted">Types that can be copied or discarded freely. Examples: integers, booleans, simple records.</p>
+          </div>
+          <div className="bg-austral-surface border border-austral-border rounded-xl p-6">
+            <h4 className="font-heading font-semibold text-austral-pink mb-2">Linear Universe</h4>
+            <p className="text-sm text-austral-text-muted">Types representing exclusive resources. Must be consumed exactly once. Prevents leaks and double-frees.</p>
+          </div>
+        </div>
 
-        <H2 id="rationale-errors">Error Handling</H2>
-        <P>Austral does not have exceptions. Instead, it uses sum types (Unions) to represent failure explicitly, similar to Rust's <Kw>Result</Kw> or Haskell's <Kw>Either</Kw>.</P>
-        
-        <H2 id="rationale-capabilities">Capability-Based Security</H2>
-        <P>The language eliminates ambient authority. Access to sensitive resources (like the filesystem or network) requires a <span className="text-white">capability token</span>, which must be passed explicitly from the program entry point.</P>
+        <H2 id="rationale-errors">Error Handling Philosophy</H2>
+        <P>Austral does not have exceptions. Why? Because exceptions introduce "invisible" control flow paths that make it impossible to reason about resource safety. Instead, we use <strong>Sum Types (Unions)</strong>.</P>
+        <CodeBlock language="rust" filename="Result.aum" code={`union Result[T: Free, E: Free]: Free is
+    case Success is
+        value: T;
+    case Failure is
+        error: E;
+end;`} />
+        <P>This forces you to handle the error path <em>at the call site</em>, making the code's behavior predictable and transparent.</P>
       </Section>
 
       {/* Syntax */}
       <Section id="syntax">
         <H1>Syntax</H1>
-        <H2 id="syntax-meta">Meta-Language</H2>
-        <P>The syntax is defined using a variant of BNF. Non-terminal symbols are in italics, terminals are in monospace.</P>
-
-        <H2 id="syntax-lexical">Lexical Structure</H2>
-        <H3 id="syntax-identifiers">Identifiers</H3>
-        <P>Identifiers are used to name modules, types, functions, and variables. They consist of a letter followed by any number of letters, digits, or underscores.</P>
-        <div className="bg-austral-surface/50 border border-austral-border p-4 rounded-xl font-mono text-sm mb-6">
-           <span className="text-austral-pink">identifier</span> ::= [a-zA-Z] [a-zA-Z0-9_]*
-        </div>
-
-        <H3 id="syntax-keywords">Keywords</H3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 my-6">
-           {['module', 'body', 'import', 'as', 'type', 'record', 'union', 'case', 'is', 'end', 'function', 'generic', 'val', 'var', 'let', 'if', 'then', 'else', 'for', 'from', 'to', 'do', 'while', 'return', 'borrow', 'discard', 'sizeof', 'not', 'and', 'or', 'nil', 'true', 'false'].map(kw => (
-             <div key={kw} className="px-3 py-1.5 bg-austral-surface border border-austral-border rounded text-center text-xs font-mono text-austral-primary">
-                {kw}
-             </div>
-           ))}
-        </div>
-
-        <H3 id="syntax-literals">Literals</H3>
-        <div className="space-y-4 my-6">
-           <div className="p-4 rounded-xl bg-austral-surface border border-austral-border">
-              <h4 className="text-sm font-bold text-white mb-2">Integer Literals</h4>
-              <CodeBlock language="rust" code={`let a: Int32 := 123;
-let b: Int32 := 0x7B; -- Hex
-let c: Int32 := 0o173; -- Octal
-let d: Int32 := 0b1111011; -- Binary`} />
-           </div>
-           <div className="p-4 rounded-xl bg-austral-surface border border-austral-border">
-              <h4 className="text-sm font-bold text-white mb-2">Strings</h4>
-              <CodeBlock language="rust" code={`let s: String := "Hello, \"Austral\"!\n";
-let c: Char := 'A';`} />
-           </div>
-        </div>
-      </Section>
-
-      {/* Module System */}
-      <Section id="modules">
-        <H1>Module System</H1>
-        <P>Austral modules consist of an interface (<Kw>.aui</Kw>) and a body (<Kw>.aum</Kw>).</P>
-        
-        <H2 id="module-interfaces">Interfaces (.aui)</H2>
-        <P>The interface declares the public API: opaque types, function signatures, and constants.</P>
-        <CodeBlock language="rust" filename="Stack.aui" code={`module Stack is
-    type Stack[T: Free]: Free;
-    generic [T: Free]
-    function empty(): Stack[T];
-    generic [T: Free]
-    function push(s: Stack[T], val: T): Stack[T];
-end module.`} />
-
-        <H2 id="module-bodies">Bodies (.aum)</H2>
-        <P>The body contains the implementations and private declarations.</P>
-        <CodeBlock language="rust" filename="Stack.aum" code={`module body Stack is
-    record Stack[T: Free]: Free is
-        items: Array[T];
-    end;
-    -- implementation of functions...
-end module body.`} />
-      </Section>
-
-      {/* Type System */}
-      <Section id="types">
-        <H1>Type System</H1>
-        <H2 id="type-universes">Type Universes</H2>
-        <P>Every type belongs to either the <Kw>Free</Kw> or <Kw>Linear</Kw> universe.</P>
-        <div className="grid sm:grid-cols-2 gap-6 my-6">
-          <div className="bg-austral-surface border border-austral-border rounded-xl p-6">
-            <h4 className="font-heading font-semibold text-austral-primary mb-2">Free Universe</h4>
-            <p className="text-sm text-austral-text-muted">Can be copied and discarded. Includes primitive types and structures of free types.</p>
-          </div>
-          <div className="bg-austral-surface border border-austral-border rounded-xl p-6">
-            <h4 className="font-heading font-semibold text-austral-pink mb-2">Linear Universe</h4>
-            <p className="text-sm text-austral-text-muted">Must be consumed exactly once. Used for resources like file handles or memory buffers.</p>
-          </div>
-        </div>
-
-        <H2 id="type-builtin">Built-in Types</H2>
-        <div className="grid sm:grid-cols-2 gap-4 my-8">
-           {[
-             { name: 'Unit', desc: 'Single value: nil.' },
-             { name: 'Boolean', desc: 'true or false.' },
-             { name: 'Integer8..64', desc: 'Signed integers.' },
-             { name: 'Natural8..64', desc: 'Unsigned integers.' },
-             { name: 'Float32, 64', desc: 'IEEE 754 floats.' },
-             { name: 'Char', desc: 'Unicode character.' }
-           ].map(t => (
-             <div key={t.name} className="p-4 rounded-xl bg-austral-surface border border-austral-border">
-                <h4 className="font-mono text-austral-primary mb-1">{t.name}</h4>
-                <p className="text-xs text-austral-text-muted">{t.desc}</p>
-             </div>
-           ))}
-        </div>
-
-        <H2 id="type-records">Records</H2>
-        <CodeBlock language="rust" filename="User.aum" code={`record User: Free is
-    id: Int32;
-    username: String;
-end;`} />
-
-        <H2 id="type-unions">Unions</H2>
-        <CodeBlock language="rust" filename="Option.aum" code={`union Option[T: Free]: Free is
-    case Some is
-        value: T;
-    case None;
-end;`} />
+        <P>Inspired by Ada and Modula-3, Austral uses a keyword-heavy syntax that favors clarity over brevity.</P>
+        <H2 id="syntax-meta">Declarations</H2>
+        <CodeBlock language="rust" filename="logic.aum" code={`if condition then
+    for i from 0 to n do
+        doSomething();
+    end for;
+end if;`} />
+        <P>Naming the end of each block (e.g., <Kw>end if</Kw>) prevents the "cascading braces" problem and allows the compiler to provide much clearer error messages.</P>
       </Section>
 
       {/* Linear Types */}
       <Section id="linear-types">
-        <H1>Linear Types</H1>
-        <P>Resource-aware types that remove categories of errors like leaks and use-after-free.</P>
+        <H1>Linear Types In-Depth</H1>
+        <P>Linearity is not just a feature; it's a governance protocol for memory.</P>
+        <H2 id="linear-destructuring">Destructuring</H2>
+        <P>To access the fields of a linear record, you must <strong>destructure</strong> it. This consumes the record and gives you ownership of its parts.</P>
+        <CodeBlock language="rust" code={`let { handle, path } := file;
+-- 'file' is now consumed. We have 'handle' and 'path'.`} />
+      </Section>
+
+      {/* FFI & The Trust Boundary */}
+      <Section id="ffi">
+        <H1>Foreign Function Interface (FFI)</H1>
+        <P>No language is an island. Austral interacts with C, but it does so through a strict <strong>Trust Boundary</strong>.</P>
         
-        <H2 id="linear-lifecycle">Resource Lifecycle</H2>
-        <div className="my-8 flex flex-col items-center">
-          <div className="bg-austral-surface/50 border border-austral-border rounded-2xl p-8 w-full max-w-2xl relative overflow-hidden">
-            <div className="flex flex-col items-center gap-12 relative py-4">
-              <div className="w-40 h-12 rounded-full border-2 border-austral-primary flex items-center justify-center bg-austral-primary/5 font-mono text-sm text-white relative z-10">
-                openFile
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-austral-primary" />
-              </div>
-              <div className="w-40 h-12 rounded-full border-2 border-austral-primary flex items-center justify-center bg-austral-primary/5 font-mono text-sm text-white relative z-10">
-                writeString
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-austral-primary" />
-              </div>
-              <div className="w-40 h-12 rounded-full border-2 border-austral-pink flex items-center justify-center bg-austral-pink/5 font-mono text-sm text-white relative z-10">
-                closeFile
-              </div>
-            </div>
-          </div>
-          <p className="mt-4 text-xs text-austral-text-muted italic">Figure: Linear resource lifecycle (Open → Use → Close)</p>
+        <H2 id="ffi-boundary">The Linear Wrapper Pattern</H2>
+        <P>The goal of FFI in Austral is to take "unsafe" C handles and wrap them in "safe" Linear types. This ensures that the client of your module cannot leak the resource, even if the underlying C library doesn't care.</P>
+        
+        <div className="bg-austral-surface/50 border border-austral-border rounded-xl p-8 my-8">
+          <h3 className="text-xl font-bold text-white mb-4">Guideline: The Safe Wrapper Path</h3>
+          <ol className="list-decimal list-inside space-y-4 text-austral-text-muted">
+            <li>
+              <strong className="text-austral-primary">Import the Raw Symbol:</strong> Use <Kw>pragma Foreign_Import</Kw> to bring in the C function.
+            </li>
+            <li>
+              <strong className="text-austral-primary">Define a Linear Wrapper:</strong> Create a linear record in your module's interface that holds the raw pointer.
+            </li>
+            <li>
+              <strong className="text-austral-primary">Handle Nulls Immediately:</strong> If C returns a null pointer, convert it to an <Kw>Option</Kw> or <Kw>Result</Kw> immediately at the boundary. Never let a raw null escape into the rest of your Austral code.
+            </li>
+            <li>
+              <strong className="text-austral-primary">Encapsulate Unsafe:</strong> Mark your module body as <Kw>unsafe</Kw>, but keep the interface <Kw>safe</Kw>.
+            </li>
+          </ol>
         </div>
 
-        <P>A linear value cannot be discarded (causing a leak) and cannot be used after it is consumed (use-after-free).</P>
-      </Section>
+        <CodeBlock language="rust" filename="C_Wrapper.aum" code={`-- 1. Import
+pragma Foreign_Import(External_Name => "malloc");
+function c_malloc(size: SizeT): Address[Nat8];
 
-      {/* Declarations */}
-      <Section id="declarations">
-        <H1>Declarations</H1>
-        <H2 id="decl-constants">Constants</H2>
-        <CodeBlock language="rust" code={`constant PI: Float64 := 3.14159;`} />
-        <H2 id="decl-functions">Functions</H2>
-        <CodeBlock language="rust" code={`function add(a: Int32, b: Int32): Int32 is
-    return a + b;
+-- 2. Wrap linearly
+record Buffer: Linear is
+    ptr: Address[Nat8];
+end;
+
+-- 3. The Safe Boundary
+function allocate(size: SizeT): Option[Buffer] is
+    let p: Address[Nat8] := c_malloc(size);
+    if is_null(p) then
+        return None();
+    else
+        return Some(Buffer(ptr => p));
+    end if;
 end;`} />
-      </Section>
-
-      {/* Statements */}
-      <Section id="statements">
-        <H1>Statements</H1>
-        <H2 id="stmt-let">Let</H2>
-        <CodeBlock language="rust" code={`let x: Int32 := 10;`} />
-        <H2 id="stmt-if">If</H2>
-        <CodeBlock language="rust" code={`if x > 0 then ... else ... end if;`} />
-        <H2 id="stmt-borrow">Borrow</H2>
-        <CodeBlock language="rust" code={`borrow resource as r in
-    -- r is a reference, resource is not consumed yet
-end borrow;`} />
-      </Section>
-
-      {/* Linearity Checking */}
-      <Section id="linearity">
-        <H1>Linearity Checking</H1>
-        <P>The compiler verifies that every linear value is consumed exactly once along every possible execution path.</P>
-        <ul className="list-disc list-inside space-y-2 text-austral-text-muted my-6">
-           <li><span className="text-white">Consumption</span> occurs when a value is passed to a function or returned.</li>
-           <li><span className="text-white">Borrowing</span> allows temporary access without consumption.</li>
-        </ul>
-      </Section>
-
-      {/* Standard Library */}
-      <Section id="stdlib">
-        <H1>Standard Library</H1>
-        <P>Core modules include <Kw>Austral.Memory</Kw> and <Kw>Austral.Pervasive</Kw>.</P>
-      </Section>
-
-      {/* FFI */}
-      <Section id="ffi">
-        <H1>Foreign Interfaces</H1>
-        <P>Interoperability with C through <Kw>pragma Foreign_Import</Kw>.</P>
-        <CodeBlock language="rust" filename="ffi.aum" code={`pragma Foreign_Import(External_Name => "puts");
-function puts(str: Address[Nat8]): Int32;`} />
-      </Section>
-
-      {/* Style Guide */}
-      <Section id="style">
-        <H1>Style Guide</H1>
-        <ul className="list-disc list-inside space-y-2 text-austral-text-muted my-4">
-           <li><Kw>PascalCase</Kw> for types.</li>
-           <li><Kw>camelCase</Kw> for functions/variables.</li>
-           <li><Kw>SCREAMING_SNAKE_CASE</Kw> for constants.</li>
-        </ul>
       </Section>
 
       {/* Footer */}
@@ -309,3 +221,4 @@ function puts(str: Address[Nat8]): Int32;`} />
     </div>
   );
 }
+
