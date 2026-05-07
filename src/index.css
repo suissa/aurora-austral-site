@@ -79,8 +79,8 @@
   height: 56px;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: var(--color-austral-accent);
-  border-right-color: var(--color-austral-accent-2);
+  border-top-color: var(--color-austral-primary);
+  border-right-color: var(--color-austral-pink);
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
@@ -90,7 +90,7 @@
 /* Glowing lines */
 .glow-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--color-austral-accent), var(--color-austral-pink), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-austral-primary), var(--color-austral-pink), transparent);
   opacity: 0.5;
 }
 
@@ -148,7 +148,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--color-austral-accent), var(--color-austral-pink));
+  background: linear-gradient(90deg, var(--color-austral-primary), var(--color-austral-pink));
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   border-radius: 1px;
 }
@@ -159,7 +159,7 @@
 
 /* Blockquote */
 .spec-blockquote {
-  border-left: 3px solid var(--color-austral-accent-2);
+  border-left: 3px solid var(--color-austral-pink);
   background: linear-gradient(135deg, rgba(167, 139, 250, 0.05), transparent);
   padding: 16px 24px;
   border-radius: 0 8px 8px 0;
@@ -177,13 +177,13 @@
   cursor: pointer;
 }
 .toc-item:hover {
-  color: var(--color-austral-accent);
-  border-left-color: var(--color-austral-accent);
+  color: var(--color-austral-primary);
+  border-left-color: var(--color-austral-primary);
   background: rgba(96, 165, 250, 0.05);
 }
 .toc-item.active {
-  color: var(--color-austral-accent);
-  border-left-color: var(--color-austral-accent);
+  color: var(--color-austral-primary);
+  border-left-color: var(--color-austral-primary);
   background: rgba(96, 165, 250, 0.08);
 }
 

@@ -81,7 +81,7 @@ const Vault: React.FC = () => {
       {/* Hero Section */}
       <div className="max-w-7xl mx-auto mb-16 relative">
         <div className="absolute -top-24 -left-24 w-96 h-96 bg-austral-primary/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-0 right-0 w-80 h-80 bg-austral-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-austral-pink/10 rounded-full blur-[100px] pointer-events-none" />
         
         <div className="relative">
           <h1 className="text-5xl md:text-7xl font-heading font-extrabold tracking-tight mb-6">
@@ -96,7 +96,7 @@ const Vault: React.FC = () => {
 
         {/* Search Bar */}
         <div className="mt-10 max-w-xl relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-austral-primary to-austral-secondary rounded-xl blur opacity-25 group-focus-within:opacity-50 transition duration-300" />
+          <div className="absolute -inset-1 bg-gradient-to-r from-austral-primary to-austral-pink rounded-xl blur opacity-25 group-focus-within:opacity-50 transition duration-300" />
           <div className="relative bg-austral-surface-2 border border-austral-border rounded-xl flex items-center px-4 py-3">
             <Search className="text-austral-text-muted mr-3 w-5 h-5" />
             <input 

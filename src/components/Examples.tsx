@@ -4,7 +4,7 @@ import CodeBlock from './CodeBlock';
 const ExampleSection = ({ title, description, icon: Icon, files }: { title: string; description: string; icon: any; files: { filename: string; content: string }[] }) => (
   <div className="mb-20 animate__animated animate__fadeIn">
     <div className="flex items-center gap-4 mb-6">
-      <div className="w-12 h-12 rounded-xl bg-austral-accent/10 flex items-center justify-center text-austral-accent">
+      <div className="w-12 h-12 rounded-xl bg-austral-primary/10 flex items-center justify-center text-austral-primary">
         <Icon size={24} />
       </div>
       <div>
@@ -16,7 +16,7 @@ const ExampleSection = ({ title, description, icon: Icon, files }: { title: stri
     <div className="grid lg:grid-cols-2 gap-6">
       {files.map((file, i) => (
         <div key={i} className="space-y-2">
-          <div className="flex items-center gap-2 px-4 py-2 bg-austral-surface border border-austral-border rounded-t-xl border-b-0 w-fit text-xs font-mono text-austral-accent">
+          <div className="flex items-center gap-2 px-4 py-2 bg-austral-surface border border-austral-border rounded-t-xl border-b-0 w-fit text-xs font-mono text-austral-primary">
             <FileCode size={14} />
             {file.filename}
           </div>
@@ -110,7 +110,7 @@ export default function Examples() {
     <div className="flex-1 min-w-0 pb-24 pt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-16 text-center">
         <h1 className="text-4xl sm:text-5xl font-heading font-bold text-white mb-6 tracking-tight">
-          Austral <span className="bg-gradient-to-r from-austral-accent via-austral-accent-2 to-austral-accent-3 bg-clip-text text-transparent">Examples</span>
+          Austral <span className="bg-gradient-to-r from-austral-primary to-austral-pink bg-clip-text text-transparent">Examples</span>
         </h1>
         <p className="text-xl text-austral-text-muted max-w-2xl mx-auto">
           Explore real-world code snippets demonstrating the power of linear types, capability-based security, and formal modularity.

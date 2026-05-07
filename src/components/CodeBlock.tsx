@@ -33,13 +33,13 @@ export default function CodeBlock({ code, language = 'rust', filename }: CodeBlo
         </div>
         <button
           onClick={handleCopy}
-          className="flex items-center gap-1.5 text-xs text-austral-text-muted hover:text-austral-accent transition-colors px-2 py-1 rounded hover:bg-white/5"
+          className="flex items-center gap-1.5 text-xs text-austral-text-muted hover:text-austral-primary transition-colors px-2 py-1 rounded hover:bg-white/5"
           title="Copy code"
         >
           {copied ? (
             <>
-              <Check size={14} className="text-austral-accent-3" />
-              <span className="text-austral-accent-3">Copied!</span>
+              <Check size={14} className="text-austral-pink" />
+              <span className="text-austral-pink">Copied!</span>
             </>
           ) : (
             <>

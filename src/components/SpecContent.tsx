@@ -14,7 +14,7 @@ const H2 = ({ id, children }: { id?: string; children: React.ReactNode }) => (
   </h2>
 );
 const H3 = ({ id, children }: { id?: string; children: React.ReactNode }) => (
-  <h3 id={id} className="text-lg font-heading font-semibold text-austral-accent mt-8 mb-3">{children}</h3>
+  <h3 id={id} className="text-lg font-heading font-semibold text-austral-primary mt-8 mb-3">{children}</h3>
 );
 const P = ({ children }: { children: React.ReactNode }) => (
   <p className="text-austral-text-muted leading-relaxed mb-4">{children}</p>
@@ -22,11 +22,11 @@ const P = ({ children }: { children: React.ReactNode }) => (
 const Quote = ({ children, author }: { children: React.ReactNode; author?: string }) => (
   <blockquote className="spec-blockquote my-6">
     <p className="mb-2">{children}</p>
-    {author && <p className="text-sm not-italic text-austral-accent-2">— {author}</p>}
+    {author && <p className="text-sm not-italic text-austral-pink">— {author}</p>}
   </blockquote>
 );
 const Kw = ({ children }: { children: React.ReactNode }) => (
-  <code className="px-1.5 py-0.5 bg-austral-accent/10 text-austral-accent rounded text-sm font-mono">{children}</code>
+  <code className="px-1.5 py-0.5 bg-austral-primary/10 text-austral-primary rounded text-sm font-mono">{children}</code>
 );
 
 export default function SpecContent() {
@@ -40,7 +40,7 @@ export default function SpecContent() {
             A systems programming language with <span className="text-white font-semibold">linear types</span> and <span className="text-white font-semibold">capability-based security</span>.
           </p>
           <div className="flex items-center justify-center gap-6 text-sm">
-            <span className="text-austral-text-muted">By <span className="text-austral-accent"><a href="https://borretti.me" target="_blank">Fernando Borretti</a></span></span>
+            <span className="text-austral-text-muted">By <span className="text-austral-primary"><a href="https://borretti.me" target="_blank">Fernando Borretti</a></span></span>
           </div>
         </div>
         <div className="glow-line mt-20 max-w-2xl mx-auto opacity-50" />
@@ -71,11 +71,11 @@ export default function SpecContent() {
               <div className="absolute -inset-1 bg-gradient-to-br from-austral-primary/20 to-austral-pink/20 rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000" />
               <div className="relative bg-austral-surface border border-austral-border rounded-2xl p-8 leading-relaxed">
                 <div className="flex flex-col md:flex-row gap-6">
-                  <div className="shrink-0 w-12 h-12 rounded-xl bg-austral-accent/10 flex items-center justify-center text-austral-accent group-hover:scale-110 transition-transform duration-500">{g.icon}</div>
+                  <div className="shrink-0 w-12 h-12 rounded-xl bg-austral-primary/10 flex items-center justify-center text-austral-primary group-hover:scale-110 transition-transform duration-500">{g.icon}</div>
                   <div>
                     <h3 className="text-xl font-heading font-bold text-white mb-3 tracking-tight">{g.title}</h3>
                     <p className="text-austral-text-muted mb-4">{g.desc}</p>
-                    <p className="text-sm text-austral-accent-2/80 font-medium italic border-l-2 border-austral-accent/30 pl-4 py-1">{g.extra}</p>
+                    <p className="text-sm text-austral-pink/80 font-medium italic border-l-2 border-austral-primary/30 pl-4 py-1">{g.extra}</p>
                   </div>
                 </div>
               </div>
@@ -114,13 +114,13 @@ end if;`} />
         <H3 id="syntax-identifiers">Identifiers</H3>
         <P>Identifiers are used to name modules, types, functions, and variables. They consist of a letter followed by any number of letters, digits, or underscores.</P>
         <div className="bg-austral-surface/50 border border-austral-border p-4 rounded-xl font-mono text-sm mb-6">
-           <span className="text-austral-accent-2">identifier</span> ::= [a-zA-Z] [a-zA-Z0-9_]*
+           <span className="text-austral-pink">identifier</span> ::= [a-zA-Z] [a-zA-Z0-9_]*
         </div>
 
         <H3 id="syntax-keywords">Keywords</H3>
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 my-6">
            {['module', 'body', 'import', 'as', 'type', 'record', 'union', 'case', 'is', 'end', 'function', 'generic', 'val', 'var', 'let', 'if', 'then', 'else', 'for', 'from', 'to', 'do', 'while', 'return', 'borrow', 'discard', 'sizeof', 'not', 'and', 'or', 'nil', 'true', 'false'].map(kw => (
-             <div key={kw} className="px-3 py-1.5 bg-austral-surface border border-austral-border rounded text-center text-xs font-mono text-austral-accent">
+             <div key={kw} className="px-3 py-1.5 bg-austral-surface border border-austral-border rounded text-center text-xs font-mono text-austral-primary">
                 {kw}
              </div>
            ))}
@@ -175,11 +175,11 @@ end module body.`} />
         <P>Every type belongs to either the <Kw>Free</Kw> or <Kw>Linear</Kw> universe.</P>
         <div className="grid sm:grid-cols-2 gap-6 my-6">
           <div className="bg-austral-surface border border-austral-border rounded-xl p-6">
-            <h4 className="font-heading font-semibold text-austral-accent mb-2">Free Universe</h4>
+            <h4 className="font-heading font-semibold text-austral-primary mb-2">Free Universe</h4>
             <p className="text-sm text-austral-text-muted">Can be copied and discarded. Includes primitive types and structures of free types.</p>
           </div>
           <div className="bg-austral-surface border border-austral-border rounded-xl p-6">
-            <h4 className="font-heading font-semibold text-austral-accent-2 mb-2">Linear Universe</h4>
+            <h4 className="font-heading font-semibold text-austral-pink mb-2">Linear Universe</h4>
             <p className="text-sm text-austral-text-muted">Must be consumed exactly once. Used for resources like file handles or memory buffers.</p>
           </div>
         </div>
@@ -195,7 +195,7 @@ end module body.`} />
              { name: 'Char', desc: 'Unicode character.' }
            ].map(t => (
              <div key={t.name} className="p-4 rounded-xl bg-austral-surface border border-austral-border">
-                <h4 className="font-mono text-austral-accent mb-1">{t.name}</h4>
+                <h4 className="font-mono text-austral-primary mb-1">{t.name}</h4>
                 <p className="text-xs text-austral-text-muted">{t.desc}</p>
              </div>
            ))}
@@ -224,15 +224,15 @@ end;`} />
         <div className="my-8 flex flex-col items-center">
           <div className="bg-austral-surface/50 border border-austral-border rounded-2xl p-8 w-full max-w-2xl relative overflow-hidden">
             <div className="flex flex-col items-center gap-12 relative py-4">
-              <div className="w-40 h-12 rounded-full border-2 border-austral-accent flex items-center justify-center bg-austral-accent/5 font-mono text-sm text-white relative z-10">
+              <div className="w-40 h-12 rounded-full border-2 border-austral-primary flex items-center justify-center bg-austral-primary/5 font-mono text-sm text-white relative z-10">
                 openFile
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-austral-accent" />
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-austral-primary" />
               </div>
-              <div className="w-40 h-12 rounded-full border-2 border-austral-accent flex items-center justify-center bg-austral-accent/5 font-mono text-sm text-white relative z-10">
+              <div className="w-40 h-12 rounded-full border-2 border-austral-primary flex items-center justify-center bg-austral-primary/5 font-mono text-sm text-white relative z-10">
                 writeString
-                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-austral-accent" />
+                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-0.5 h-12 bg-austral-primary" />
               </div>
-              <div className="w-40 h-12 rounded-full border-2 border-austral-accent-3 flex items-center justify-center bg-austral-accent-3/5 font-mono text-sm text-white relative z-10">
+              <div className="w-40 h-12 rounded-full border-2 border-austral-pink flex items-center justify-center bg-austral-pink/5 font-mono text-sm text-white relative z-10">
                 closeFile
               </div>
             </div>

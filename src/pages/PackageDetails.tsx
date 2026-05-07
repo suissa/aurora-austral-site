@@ -172,7 +172,7 @@ const PackageDetails: React.FC = () => {
                   ol: ({ children }) => <ol className="list-decimal list-inside mb-6 space-y-2 text-austral-text-muted font-body">{children}</ol>,
                   li: ({ children }) => <li className="ml-4">{children}</li>,
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-austral-secondary bg-austral-surface-2/50 p-4 my-6 italic text-austral-text-muted rounded-r-lg font-body">
+                    <blockquote className="border-l-4 border-austral-pink bg-austral-surface-2/50 p-4 my-6 italic text-austral-text-muted rounded-r-lg font-body">
                       {children}
                     </blockquote>
                   ),

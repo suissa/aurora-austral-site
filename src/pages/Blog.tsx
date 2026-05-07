@@ -212,7 +212,7 @@ export default function Blog() {
         {/* Header & Search */}
         <div className="mb-20 text-center">
           <h1 className="text-5xl md:text-7xl font-heading font-extrabold tracking-tight mb-6">
-            <span className="bg-gradient-to-br from-austral-primary to-austral-secondary bg-clip-text text-transparent">
+            <span className="bg-gradient-to-br from-austral-primary to-austral-pink bg-clip-text text-transparent">
               Austral Blog
             </span>
           </h1>
@@ -221,7 +221,7 @@ export default function Blog() {
           </p>
 
           <div className="relative group max-w-xl mx-auto">
-            <div className="absolute -inset-1 bg-gradient-to-r from-austral-primary to-austral-secondary rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-300" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-austral-primary to-austral-pink rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-300" />
             <div className="relative bg-austral-surface border border-austral-border rounded-2xl flex items-center px-6 py-4">
               <Search className="text-austral-text-muted mr-4 w-5 h-5" />
               <input 

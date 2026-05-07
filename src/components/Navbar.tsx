@@ -50,7 +50,7 @@ export default function Navbar() {
                 to="/blog"
                 className={`flex items-center gap-2 text-sm font-semibold transition-all ${
                   location.pathname.startsWith('/blog')
-                    ? 'text-austral-secondary'
+                    ? 'text-austral-pink'
                     : 'text-austral-text-muted hover:text-white'
                 }`}
               >
@@ -62,7 +62,7 @@ export default function Navbar() {
                 to="/docs"
                 className={`flex items-center gap-2 text-sm font-semibold transition-all ${
                   location.pathname.startsWith('/docs')
-                    ? 'text-austral-accent'
+                    ? 'text-austral-primary'
                     : 'text-austral-text-muted hover:text-white'
                 }`}
               >
@@ -101,12 +101,12 @@ export default function Navbar() {
           </Link>
           <Link to="/blog" onClick={() => setMobileOpen(false)}
             className="flex items-center gap-3 w-full p-4 rounded-2xl bg-white/5 text-white font-bold">
-            <Newspaper size={20} className="text-austral-secondary" />
+            <Newspaper size={20} className="text-austral-pink" />
             Blog
           </Link>
           <Link to="/docs" onClick={() => setMobileOpen(false)}
             className="flex items-center gap-3 w-full p-4 rounded-2xl bg-white/5 text-white font-bold">
-            <BookOpen size={20} className="text-austral-accent" />
+            <BookOpen size={20} className="text-austral-primary" />
             Documentation
           </Link>
 

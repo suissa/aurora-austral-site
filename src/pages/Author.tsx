@@ -31,7 +31,7 @@ export default function Author() {
         <div className="relative">
           {/* Header Card */}
           <div className="bg-austral-surface border border-austral-border rounded-[2.5rem] p-8 sm:p-12 overflow-hidden shadow-2xl relative">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-austral-accent/10 rounded-full blur-[100px] -mr-32 -mt-32" />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-austral-primary/10 rounded-full blur-[100px] -mr-32 -mt-32" />
             
             <div className="flex flex-col md:flex-row gap-10 items-center md:items-start relative z-10">
               <div className="shrink-0">
@@ -49,9 +49,9 @@ export default function Author() {
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
                   <h1 className="text-4xl sm:text-5xl font-heading font-bold text-white tracking-tight">
-                    Jean Carlo <span className="text-austral-accent">Suissa</span>
+                    Jean Carlo <span className="bg-gradient-to-br from-austral-primary to-austral-pink bg-clip-text text-transparent">Suissa</span>
                   </h1>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-austral-accent/10 border border-austral-accent/20 text-austral-accent text-[10px] font-bold uppercase tracking-widest">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-austral-primary/10 border border-austral-primary/20 text-austral-primary text-[10px] font-bold uppercase tracking-widest">
                     <Award size={12} /> Ambassador
                   </span>
                 </div>
@@ -67,7 +67,7 @@ export default function Author() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-austral-accent hover:bg-austral-accent/5 transition-all group"
+                      className="flex items-center justify-center gap-2 p-3 rounded-2xl bg-white/5 border border-white/10 hover:border-austral-primary hover:bg-austral-primary/5 transition-all group"
                     >
                       <span className="text-austral-text-muted group-hover:text-white transition-colors">{link.icon}</span>
                     </a>
@@ -92,7 +92,7 @@ export default function Author() {
 
               <div className="bg-austral-surface/50 border border-austral-border rounded-3xl p-8">
                 <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <Code2 size={18} className="text-austral-accent" />
+                  <Code2 size={18} className="text-austral-primary" />
                   Technical Focus
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -110,13 +110,13 @@ export default function Author() {
                 <h3 className="text-sm font-bold text-austral-text-muted uppercase tracking-widest mb-6">Contact</h3>
                 <ul className="space-y-4">
                   <li className="flex items-center gap-3 text-sm text-white">
-                    <MapPin size={16} className="text-austral-accent" /> Curitiba, Brazil
+                    <MapPin size={16} className="text-austral-primary" /> Curitiba, Brazil
                   </li>
                   <li className="flex items-center gap-3 text-sm text-white">
-                    <Mail size={16} className="text-austral-accent" /> suissa@purecore.io
+                    <Mail size={16} className="text-austral-primary" /> suissa@purecore.io
                   </li>
                   <li className="flex items-center gap-3 text-sm text-white">
-                    <Globe size={16} className="text-austral-accent" /> purecore.io
+                    <Globe size={16} className="text-austral-primary" /> purecore.io
                   </li>
                 </ul>
               </div>

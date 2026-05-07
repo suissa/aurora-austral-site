@@ -26,6 +26,21 @@ export default function Dashboard() {
     author: 'Suissa'
   });
 
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const folder = formData.type === 'image' ? 'images' : 
+                     formData.type === 'video' ? 'videos' : 
+                     formData.type === 'audio' ? 'audios' : 'slides';
+      setFormData({
+        ...formData,
+        mediaUrl: `/blog/medias/${folder}/${file.name}`
+      });
+    }
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (loginData.username === 'suissa' && loginData.password === 'teste') {
@@ -95,7 +110,7 @@ export default function Dashboard() {
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-br from-austral-primary to-austral-pink" />
           
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-austral-accent/10 flex items-center justify-center text-austral-accent mx-auto mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-austral-primary/10 flex items-center justify-center text-austral-primary mx-auto mb-6">
               <Lock size={32} />
             </div>
             <h2 className="text-2xl font-heading font-bold text-white mb-2">Restricted Area</h2>
@@ -109,7 +124,7 @@ export default function Dashboard() {
                 placeholder="Username"
                 value={loginData.username}
                 onChange={e => setLoginData({...loginData, username: e.target.value})}
-                className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:border-austral-accent outline-none"
+                className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:border-austral-primary outline-none"
               />
             </div>
             <div>
@@ -118,7 +133,7 @@ export default function Dashboard() {
                 placeholder="Password"
                 value={loginData.password}
                 onChange={e => setLoginData({...loginData, password: e.target.value})}
-                className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:border-austral-accent outline-none"
+                className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:border-austral-primary outline-none"
               />
             </div>
             {loginError && <p className="text-red-400 text-xs text-center">{loginError}</p>}
@@ -181,7 +196,7 @@ export default function Dashboard() {
                     value={formData.title}
                     onChange={e => setFormData({...formData, title: e.target.value})}
                     placeholder="Enter post title..."
-                    className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-accent transition-colors"
+                    className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-primary transition-colors"
                   />
                 </div>
 
@@ -193,7 +208,7 @@ export default function Dashboard() {
                     onChange={e => setFormData({...formData, content: e.target.value})}
                     rows={5}
                     placeholder="Write your story..."
-                    className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-accent transition-colors resize-none"
+                    className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-primary transition-colors resize-none"
                   />
                 </div>
 
@@ -214,8 +229,8 @@ export default function Dashboard() {
                           onClick={() => setFormData({...formData, type: m.type as PostType})}
                           className={`p-3 rounded-xl flex items-center justify-center transition-all ${
                             formData.type === m.type 
-                              ? 'bg-austral-accent text-white shadow-lg shadow-austral-accent/20' 
-                              : 'bg-austral-bg border border-austral-border text-austral-text-muted hover:border-austral-accent'
+                              ? 'bg-austral-primary text-white shadow-lg shadow-austral-primary/20' 
+                              : 'bg-austral-bg border border-austral-border text-austral-text-muted hover:border-austral-primary'
                           }`}
                           title={m.type}
                         >
@@ -226,13 +241,34 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-austral-text-muted mb-2">Media URL / ID</label>
-                    <input 
-                      value={formData.mediaUrl}
-                      onChange={e => setFormData({...formData, mediaUrl: e.target.value})}
-                      placeholder="https://..."
-                      className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-accent transition-colors"
-                    />
+                    <label className="block text-sm font-medium text-austral-text-muted mb-2">Media File / URL</label>
+                    <div className="flex gap-2">
+                      <input 
+                        value={formData.mediaUrl}
+                        onChange={e => setFormData({...formData, mediaUrl: e.target.value})}
+                        placeholder="/blog/medias/..."
+                        className="flex-1 bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-primary transition-colors"
+                      />
+                      <input 
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept={
+                          formData.type === 'image' ? 'image/*' :
+                          formData.type === 'video' ? 'video/*' :
+                          formData.type === 'audio' ? 'audio/*' : '*'
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="p-3 bg-austral-surface border border-austral-border rounded-xl text-austral-primary hover:border-austral-primary transition-all"
+                        title="Select file"
+                      >
+                        <ImageIcon size={20} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -272,11 +308,11 @@ export default function Dashboard() {
                       author: post.author
                     });
                   }}
-                  className="group bg-austral-surface border border-austral-border rounded-2xl p-4 hover:border-austral-accent transition-all cursor-pointer"
+                  className="group bg-austral-surface border border-austral-border rounded-2xl p-4 hover:border-austral-primary transition-all cursor-pointer"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-austral-accent/10 flex items-center justify-center text-austral-accent">
+                      <div className="w-10 h-10 rounded-lg bg-austral-primary/10 flex items-center justify-center text-austral-primary">
                         {post.medias[0]?.type === 'image' && <ImageIcon size={18} />}
                         {post.medias[0]?.type === 'text' && <FileText size={18} />}
                         {post.medias[0]?.type === 'audio' && <Mic size={18} />}

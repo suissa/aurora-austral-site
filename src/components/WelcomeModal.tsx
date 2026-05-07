@@ -27,7 +27,7 @@ export default function WelcomeModal() {
       {/* Modal Content */}
       <div className="relative w-full max-w-6xl max-h-[90vh] bg-austral-surface border border-austral-border/30 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] overflow-hidden animate__animated animate__zoomIn animate__faster">
         {/* Header Gradient Line */}
-        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-austral-primary via-austral-secondary to-austral-pink" />
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-austral-primary to-austral-pink" />
         
         <button onClick={closeModal} className="absolute top-6 right-6 z-10 p-2 rounded-full bg-white/5 text-austral-text-muted hover:text-white hover:bg-white/10 transition-all">
           <X size={20} />
@@ -35,7 +35,7 @@ export default function WelcomeModal() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 h-full max-h-[90vh]">
           {/* Left Side: Visual/Hero */}
-          <div className="lg:col-span-5 relative bg-gradient-to-br from-austral-primary/20 via-austral-secondary/10 to-austral-pink/20 p-12 flex flex-col justify-between border-r border-austral-border/20 overflow-hidden min-h-[500px]">
+          <div className="lg:col-span-5 relative bg-gradient-to-br from-austral-primary/20 to-austral-pink/20 p-12 flex flex-col justify-between border-r border-austral-border/20 overflow-hidden min-h-[500px]">
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-austral-primary/20 rounded-full blur-[100px]" />
             <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-austral-pink/20 rounded-full blur-[100px]" />
             
@@ -65,7 +65,7 @@ export default function WelcomeModal() {
               </div>
 
               <div className="flex gap-6 group">
-                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-austral-secondary/10 flex items-center justify-center text-austral-secondary border border-austral-secondary/20 group-hover:scale-110 transition-transform">
+                <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-austral-pink/10 flex items-center justify-center text-austral-pink border border-austral-pink/20 group-hover:scale-110 transition-transform">
                   <Shield size={22} />
                 </div>
                 <div>
