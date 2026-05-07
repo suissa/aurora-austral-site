@@ -2,20 +2,20 @@ import { Activity, Key, Calendar, FileText, ArrowUpRight } from 'lucide-react';
 
 const ProjectCard = ({ title, description, icon: Icon, tag }: { title: string; description: string; icon: any; tag?: string }) => (
   <div className="group relative">
-    <div className="absolute -inset-0.5 bg-gradient-to-r from-austral-primary to-austral-pink rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-500" />
-    <div className="relative bg-austral-surface border border-austral-border rounded-2xl p-8 flex flex-col h-full hover:border-austral-primary/50 transition-all duration-300">
+    <div className="absolute -inset-0.5 bg-gradient-to-r from-austral-accent to-austral-accent-2 rounded-2xl blur opacity-10 group-hover:opacity-30 transition duration-500" />
+    <div className="relative bg-austral-surface border border-austral-border rounded-2xl p-8 flex flex-col h-full hover:border-austral-accent/50 transition-all duration-300">
       <div className="flex justify-between items-start mb-6">
-        <div className="w-12 h-12 rounded-xl bg-austral-primary/10 flex items-center justify-center text-austral-primary group-hover:scale-110 transition-transform duration-500">
+        <div className="w-12 h-12 rounded-xl bg-austral-accent/10 flex items-center justify-center text-austral-accent group-hover:scale-110 transition-transform duration-500">
           <Icon size={24} />
         </div>
         {tag && (
-          <span className="px-3 py-1 rounded-full bg-austral-primary/10 border border-austral-primary/20 text-[10px] font-bold text-austral-primary uppercase tracking-wider">
+          <span className="px-3 py-1 rounded-full bg-austral-accent/10 border border-austral-accent/20 text-[10px] font-bold text-austral-accent uppercase tracking-wider">
             {tag}
           </span>
         )}
       </div>
       
-      <h3 className="text-xl font-heading font-bold text-white mb-3 flex items-center gap-2 group-hover:text-austral-primary transition-colors">
+      <h3 className="text-xl font-heading font-bold text-white mb-3 flex items-center gap-2 group-hover:text-austral-accent transition-colors">
         {title}
         <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 -translate-y-1 translate-x-1 transition-all" />
       </h3>
@@ -24,7 +24,7 @@ const ProjectCard = ({ title, description, icon: Icon, tag }: { title: string; d
         {description}
       </p>
 
-      <button className="w-full py-2.5 rounded-xl border border-austral-border bg-austral-bg/50 text-xs font-bold text-white hover:bg-austral-primary hover:border-austral-primary transition-all duration-300">
+      <button className="w-full py-2.5 rounded-xl border border-austral-border bg-austral-bg/50 text-xs font-bold text-white hover:bg-austral-accent hover:border-austral-accent transition-all duration-300">
         Explore Project
       </button>
     </div>
@@ -63,7 +63,7 @@ export default function Projects() {
     <div className="flex-1 min-w-0 pb-24 pt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="mb-16 text-center animate__animated animate__fadeIn">
         <h1 className="text-4xl sm:text-5xl font-heading font-bold text-white mb-6 tracking-tight">
-          Ecosystem <span className="bg-gradient-to-r from-austral-primary to-austral-pink bg-clip-text text-transparent">Projects</span>
+          Ecosystem <span className="bg-gradient-to-r from-austral-accent via-austral-accent-2 to-austral-accent-3 bg-clip-text text-transparent">Projects</span>
         </h1>
         <p className="text-xl text-austral-text-muted max-w-2xl mx-auto">
           Advancing the frontier of safe systems programming through innovative research and practical tooling.
@@ -82,9 +82,11 @@ export default function Projects() {
         <p className="text-austral-text-muted mb-8 max-w-xl mx-auto">
           The Austral ecosystem is growing. Join us in building the next generation of safe, reliable software.
         </p>
-        <button className="px-8 py-3 rounded-xl bg-gradient-to-br from-austral-primary to-austral-pink text-white font-bold hover:scale-105 transition-transform shadow-lg shadow-austral-primary/25">
-          Join the Community
-        </button>
+        <a href="https://github.com/aurora-austral" target="_blank"><button className="group px-8 py-3 rounded-xl bg-austral-accent font-bold hover:scale-105 transition-all shadow-lg shadow-austral-accent/25">
+          <span className="text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:via-gray-200 group-hover:to-austral-primary bg-[length:200%_auto] hover:animate-pulse transition-all duration-300">
+            Join the Aurora Austral Community
+          </span>
+        </button></a>
       </div>
     </div>
   );

@@ -9,6 +9,8 @@ import Author from './pages/Author';
 import Vault from './pages/Vault';
 import PackageDetails from './pages/PackageDetails';
 import WelcomeModal from './components/WelcomeModal';
+import Projects from './components/Projects';
+import Examples from './components/Examples';
 import { tocData } from './data/toc';
 
 function flattenIds(items: typeof tocData): string[] {
@@ -88,6 +90,12 @@ export default function App() {
           {/* Vault */}
           <Route path="/vault" element={<Vault />} />
           <Route path="/vault/:packageName" element={<PackageDetails />} />
+
+          {/* Projects */}
+          <Route path="/projects" element={<Projects />} />
+
+          {/* Examples */}
+          <Route path="/examples" element={<Examples />} />
           
           {/* Management */}
           <Route path="/dashboard" element={<Dashboard />} />

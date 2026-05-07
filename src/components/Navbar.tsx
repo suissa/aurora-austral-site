@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, PackageOpen, Rocket, BookOpen, Newspaper } from 'lucide-react';
+import { Menu, X, PackageOpen, Rocket, BookOpen, Newspaper, Briefcase, Code2 } from 'lucide-react';
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -34,16 +34,18 @@ export default function Navbar() {
             </Link>
 
             <div className="hidden md:flex items-center gap-6">
+              
+
               <Link
-                to="/vault"
+                to="/projects"
                 className={`flex items-center gap-2 text-sm font-semibold transition-all ${
-                  location.pathname.startsWith('/vault') || location.pathname === '/'
+                  location.pathname.startsWith('/projects')
                     ? 'text-austral-primary'
                     : 'text-austral-text-muted hover:text-white'
                 }`}
               >
-                <PackageOpen size={16} />
-                Vault
+                <Briefcase size={16} />
+                Projects
               </Link>
 
               <Link
@@ -70,6 +72,18 @@ export default function Navbar() {
                 Docs
               </Link>
 
+              <Link
+                to="/examples"
+                className={`flex items-center gap-2 text-sm font-semibold transition-all ${
+                  location.pathname.startsWith('/examples')
+                    ? 'text-austral-primary'
+                    : 'text-austral-text-muted hover:text-white'
+                }`}
+              >
+                <Code2 size={16} />
+                Examples
+              </Link>
+
               <div className="w-px h-4 bg-austral-border mx-2" />
 
               <a
@@ -78,7 +92,7 @@ export default function Navbar() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-austral-primary text-austral-bg text-sm font-bold hover:scale-105 transition-all shadow-[0_0_20px_rgba(60,216,228,0.2)]"
               >
-                <Rocket size={16} />
+                <PackageOpen size={16} />
                 Aurora
               </a>
             </div>
@@ -99,6 +113,11 @@ export default function Navbar() {
             <PackageOpen size={20} className="text-austral-primary" />
             Vault
           </Link>
+          <Link to="/projects" onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-3 w-full p-4 rounded-2xl bg-white/5 text-white font-bold">
+            <Briefcase size={20} className="text-austral-primary" />
+            Projects
+          </Link>
           <Link to="/blog" onClick={() => setMobileOpen(false)}
             className="flex items-center gap-3 w-full p-4 rounded-2xl bg-white/5 text-white font-bold">
             <Newspaper size={20} className="text-austral-pink" />
@@ -108,6 +127,11 @@ export default function Navbar() {
             className="flex items-center gap-3 w-full p-4 rounded-2xl bg-white/5 text-white font-bold">
             <BookOpen size={20} className="text-austral-primary" />
             Documentation
+          </Link>
+          <Link to="/examples" onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-3 w-full p-4 rounded-2xl bg-white/5 text-white font-bold">
+            <Code2 size={20} className="text-austral-primary" />
+            Examples
           </Link>
 
           <div className="pt-4 border-t border-austral-border">
