@@ -220,17 +220,19 @@ export default function Dashboard() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-austral-text-muted mb-2">Content (AI will translate this)</label>
-                  <textarea 
-                    required
-                    value={formData.content}
-                    onChange={e => setFormData({...formData, content: e.target.value})}
-                    rows={5}
-                    placeholder="Write your story..."
-                    className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-primary transition-colors resize-none"
-                  />
-                </div>
+                {formData.type === 'text' && (
+                  <div>
+                    <label className="block text-sm font-medium text-austral-text-muted mb-2">Content (AI will translate this)</label>
+                    <textarea 
+                      required
+                      value={formData.content}
+                      onChange={e => setFormData({...formData, content: e.target.value})}
+                      rows={5}
+                      placeholder="Write your story..."
+                      className="w-full bg-austral-bg border border-austral-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-austral-primary transition-colors resize-none"
+                    />
+                  </div>
+                )}
 
                 <div className="grid sm:grid-cols-2 gap-6">
                   <div>
