@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "convert:react": "vite-elm-convert src --out converted-elm"
+    "convert:react": "vite-elm-convert",
+    "test:converter": "node --test packages/vite.elm/test/*.test.js"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
