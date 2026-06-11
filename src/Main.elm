@@ -1,30 +1,77 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
-import Html exposing (Html, a, article, aside, br, button, code, div, footer, h1, h2, h3, h4, header, img, li, main_, nav, ol, p, pre, section, span, strong, text, ul)
-import Html.Attributes exposing (alt, class, href, id, rel, src, target, title)
+import Html exposing (Html, a, article, aside, br, button, code, div, footer, h1, h2, h3, h4, header, img, label, li, main_, nav, ol, p, pre, section, span, strong, text, textarea, ul)
+import Html.Attributes exposing (alt, class, href, id, placeholder, rel, rows, src, style, target, title, value)
+import Html.Events exposing (onClick, onDoubleClick, onInput)
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Url exposing (Url)
 
 
 type alias Model =
     { key : Nav.Key
     , url : Url
+    , agents : List AgentPanel
+    , modalAgent : Maybe String
+    , commandText : String
+    , socketStatus : String
+    }
+
+
+type alias AgentPanel =
+    { id : String
+    , name : String
+    , role : String
+    , runtime : String
+    , host : String
+    , status : String
+    , severity : String
+    , eventType : String
+    , eventMsg : String
+    , traceId : String
+    , taskId : String
+    , stepId : String
+    , updatedAt : String
+    , progressPercent : Maybe Float
+    , durationMs : Maybe Float
+    , memoryMb : Maybe Float
+    , tokensIn : Maybe Float
+    , tokensOut : Maybe Float
+    , cost : Maybe Float
+    , commands : List String
+    , files : List String
+    , message : Maybe String
+    , samples : List Float
     }
 
 
 type Msg
     = LinkClicked Browser.UrlRequest
     | UrlChanged Url
+    | AgentEvent Decode.Value
+    | OpenCommand String
+    | CloseCommand
+    | UpdateCommand String
+    | ClearCommand
+    | SendCommand
+    | DismissAgentMessage String
+
+
+port agentEventReceived : (Decode.Value -> msg) -> Sub msg
+
+
+port sendAgentCommand : Encode.Value -> Cmd msg
 
 
 main : Program () Model Msg
 main =
     Browser.application
-        { init = \_ url key -> ( { key = key, url = url }, Cmd.none )
+        { init = \_ url key -> ( { key = key, url = url, agents = [], modalAgent = Nothing, commandText = "", socketStatus = "Conectando websocket" }, Cmd.none )
         , view = view
         , update = update
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = \_ -> agentEventReceived AgentEvent
         , onUrlRequest = LinkClicked
         , onUrlChange = UrlChanged
         }
@@ -44,6 +91,39 @@ update msg model =
         UrlChanged url ->
             ( { model | url = url }, Cmd.none )
 
+        AgentEvent payload ->
+            case Decode.decodeValue agentEventDecoder payload of
+                Ok incoming ->
+                    ( { model | agents = upsertAgent incoming model.agents, socketStatus = "Tempo real ativo" }, Cmd.none )
+
+                Err _ ->
+                    ( { model | socketStatus = "Evento inválido ignorado" }, Cmd.none )
+
+        OpenCommand agentId ->
+            ( { model | modalAgent = Just agentId, commandText = "" }, Cmd.none )
+
+        CloseCommand ->
+            ( { model | modalAgent = Nothing, commandText = "" }, Cmd.none )
+
+        UpdateCommand prompt ->
+            ( { model | commandText = prompt }, Cmd.none )
+
+        ClearCommand ->
+            ( { model | commandText = "" }, Cmd.none )
+
+        SendCommand ->
+            case model.modalAgent of
+                Just agentId ->
+                    ( { model | modalAgent = Nothing, commandText = "" }
+                    , sendAgentCommand (Encode.object [ ( "prompt", Encode.string model.commandText ), ( "agent_id", Encode.string agentId ) ])
+                    )
+
+                Nothing ->
+                    ( model, Cmd.none )
+
+        DismissAgentMessage agentId ->
+            ( { model | agents = List.map (clearAgentMessage agentId) model.agents }, Cmd.none )
+
 
 view : Model -> Browser.Document Msg
 view model =
@@ -52,7 +132,7 @@ view model =
         [ div []
             [ loadingScreen
             , navbar model.url.path
-            , routeView model.url.path
+            , routeView model model.url.path
             ]
         ]
     }
@@ -80,8 +160,8 @@ pageTitle path =
             "Austral Language"
 
 
-routeView : String -> Html Msg
-routeView path =
+routeView : Model -> String -> Html Msg
+routeView model path =
     case path of
         "/blog" ->
             shell blogPage
@@ -96,7 +176,7 @@ routeView path =
             shell examplesPage
 
         "/dashboard" ->
-            shell dashboardPage
+            shell (dashboardPage model)
 
         "/docs" ->
             docsPage
@@ -384,14 +464,25 @@ examplesPage =
         ]
 
 
-dashboardPage : Html Msg
-dashboardPage =
-    div []
-        [ pageHeader "Dashboard" "The development dashboard route remains available in Elm. The save-post and upload-media Vite middleware was kept in vite.config.ts." 
-        , div [ class "rounded-2xl border border-austral-border bg-austral-surface p-6" ]
-            [ h3 [ class "text-xl font-bold text-white mb-3" ] [ text "Migration note" ]
-            , p [ class "text-austral-text-muted" ] [ text "Interactive authoring features can be rebuilt with Elm forms and ports while preserving the existing local API endpoints." ]
+dashboardPage : Model -> Html Msg
+dashboardPage model =
+    div [ class "space-y-8" ]
+        [ pageHeader "Multi-agent Observability" "Dashboard em tempo real: cada novo agent.id recebido pelo WebSocket cria uma seção dinâmica; eventos posteriores atualizam apenas o card daquele agente."
+        , componentContract
+        , realtimeChart model.agents
+        , div [ class "flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-austral-border bg-austral-surface/70 p-4" ]
+            [ div []
+                [ p [ class "text-xs uppercase tracking-[0.25em] text-austral-primary font-bold" ] [ text "WebSocket" ]
+                , p [ class "text-white font-semibold" ] [ text model.socketStatus ]
+                ]
+            , span [ class "text-austral-text-muted text-sm" ] [ text (String.fromInt (List.length model.agents) ++ " agents observados") ]
             ]
+        , if List.isEmpty model.agents then
+            emptyDashboard
+
+          else
+            div [ class "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6" ] (List.map agentSection model.agents)
+        , commandModal model
         ]
 
 
@@ -401,3 +492,412 @@ pageHeader titleText subtitle =
         [ h1 [ class "text-4xl md:text-5xl font-heading font-extrabold text-white mb-4" ] [ text titleText ]
         , p [ class "max-w-3xl text-austral-text-muted text-lg leading-8" ] [ text subtitle ]
         ]
+
+
+componentContract : Html Msg
+componentContract =
+    let
+        item ( componentName, propName ) =
+            li [ class "rounded-xl border border-austral-border bg-black/20 p-3" ]
+                [ span [ class "text-white font-semibold" ] [ text componentName ]
+                , span [ class "text-austral-text-muted" ] [ text (" ← " ++ propName) ]
+                ]
+    in
+    section [ class "rounded-2xl border border-austral-border bg-austral-surface/60 p-5" ]
+        [ h2 [ class "text-xl font-heading font-bold text-white mb-2" ] [ text "Componentes declarados" ]
+        , p [ class "text-sm text-austral-text-muted mb-4" ] [ text "Nome do componente e propriedade responsável por entregar valor ao componente." ]
+        , ul [ class "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm" ]
+            (List.map item
+                [ ( "AgentGrid", "agents" )
+                , ( "AgentSection", "agent" )
+                , ( "RealtimeChart", "samples" )
+                , ( "MetricTile", "metric" )
+                , ( "CommandModal", "agent_id" )
+                , ( "MessageOverlay", "agent.message" )
+                ]
+            )
+        ]
+
+
+emptyDashboard : Html Msg
+emptyDashboard =
+    div [ class "rounded-3xl border border-dashed border-austral-border bg-austral-surface/40 p-8 text-center" ]
+        [ h3 [ class "text-2xl font-heading font-bold text-white mb-3" ] [ text "Aguardando eventos" ]
+        , p [ class "text-austral-text-muted" ] [ text "Quando um JSON com agent.id chegar via WebSocket, uma nova section será criada automaticamente." ]
+        ]
+
+
+agentSection : AgentPanel -> Html Msg
+agentSection agent =
+    section [ class "relative overflow-hidden rounded-3xl border border-austral-border bg-austral-surface/80 p-4 sm:p-5 shadow-xl" ]
+        [ div [ class "flex items-start justify-between gap-3 mb-4" ]
+            [ div [ class "min-w-0" ]
+                [ p [ class "text-xs text-austral-primary font-mono truncate" ] [ text agent.id ]
+                , h3 [ class "text-xl font-heading font-bold text-white truncate" ] [ text agent.name ]
+                , p [ class "text-sm text-austral-text-muted" ] [ text (agent.role ++ " · " ++ agent.runtime ++ " · " ++ agent.host) ]
+                ]
+            , button [ onClick (OpenCommand agent.id), class "min-h-12 px-5 rounded-2xl bg-austral-primary text-austral-bg font-extrabold shadow-[0_0_20px_rgba(60,216,228,0.25)] active:scale-95" ] [ text "Comandar" ]
+            ]
+        , div [ class "flex flex-wrap gap-2 mb-4" ]
+            [ statusPill agent.status
+            , severityPill agent.severity
+            , span [ class "px-3 py-1 rounded-full bg-white/5 text-xs text-austral-text-muted" ] [ text agent.eventType ]
+            ]
+        , div [ class "rounded-2xl border border-austral-border bg-black/20 p-4 mb-4" ]
+            [ p [ class "text-xs uppercase tracking-[0.2em] text-austral-primary mb-2" ] [ text "Último evento" ]
+            , p [ class "text-white font-semibold" ] [ text agent.eventMsg ]
+            , p [ class "text-xs text-austral-text-muted mt-2" ] [ text ("trace " ++ agent.traceId ++ " · task " ++ agent.taskId ++ " · step " ++ agent.stepId) ]
+            ]
+        , div [ class "relative" ]
+            [ div [ class "grid grid-cols-2 gap-3" ]
+                [ metricTile "Progresso" (maybePercent agent.progressPercent)
+                , metricTile "Duração" (maybeMs agent.durationMs)
+                , metricTile "Memória" (maybeMb agent.memoryMb)
+                , metricTile "Tokens" (maybeTokens agent.tokensIn agent.tokensOut)
+                , metricTile "Custo" (maybeCost agent.cost)
+                , metricTile "Arquivos" (String.fromInt (List.length agent.files))
+                ]
+            , messageOverlay agent
+            ]
+        , miniBars agent.samples
+        ]
+
+
+messageOverlay : AgentPanel -> Html Msg
+messageOverlay agent =
+    case agent.message of
+        Just message ->
+            div [ onDoubleClick (DismissAgentMessage agent.id), class "absolute inset-0 z-10 flex items-center justify-center rounded-2xl p-4 text-center", style "background-color" "#000", style "color" "#fff", style "font-size" "16px", style "font-weight" "700" ]
+                [ text message ]
+
+        Nothing ->
+            text ""
+
+
+metricTile : String -> String -> Html Msg
+metricTile labelText valueText =
+    div [ class "rounded-2xl border border-austral-border bg-austral-bg/70 p-3" ]
+        [ p [ class "text-[11px] uppercase tracking-[0.18em] text-austral-text-muted" ] [ text labelText ]
+        , p [ class "text-lg font-bold text-white mt-1" ] [ text valueText ]
+        ]
+
+
+statusPill : String -> Html Msg
+statusPill status =
+    span [ class ("px-3 py-1 rounded-full text-xs font-bold " ++ statusClass status) ] [ text status ]
+
+
+severityPill : String -> Html Msg
+severityPill severity =
+    span [ class ("px-3 py-1 rounded-full text-xs font-bold " ++ severityClass severity) ] [ text severity ]
+
+
+statusClass : String -> String
+statusClass status =
+    case status of
+        "running" ->
+            "bg-austral-primary/15 text-austral-primary"
+
+        "success" ->
+            "bg-emerald-400/15 text-emerald-300"
+
+        "failed" ->
+            "bg-red-400/15 text-red-300"
+
+        "blocked" ->
+            "bg-amber-400/15 text-amber-300"
+
+        "offline" ->
+            "bg-slate-400/15 text-slate-300"
+
+        _ ->
+            "bg-white/10 text-austral-text-muted"
+
+
+severityClass : String -> String
+severityClass severity =
+    case severity of
+        "error" ->
+            "bg-red-500/15 text-red-300"
+
+        "fatal" ->
+            "bg-red-700/25 text-red-200"
+
+        "warn" ->
+            "bg-yellow-500/15 text-yellow-200"
+
+        _ ->
+            "bg-austral-pink/15 text-austral-pink"
+
+
+realtimeChart : List AgentPanel -> Html Msg
+realtimeChart agents =
+    let
+        samples =
+            agents
+                |> List.concatMap .samples
+                |> List.take 24
+                |> List.reverse
+
+        maxValue =
+            samples |> List.maximum |> Maybe.withDefault 1 |> max 1
+
+        bar sample =
+            let
+                h =
+                    String.fromFloat (max 8 ((sample / maxValue) * 100)) ++ "%"
+            in
+            div [ class "flex-1 rounded-t-lg bg-gradient-to-t from-austral-primary to-austral-pink min-w-2", style "height" h, title (String.fromFloat sample ++ "ms") ] []
+    in
+    section [ class "rounded-3xl border border-austral-border bg-austral-surface/70 p-5" ]
+        [ div [ class "flex items-center justify-between gap-3 mb-4" ]
+            [ div []
+                [ h2 [ class "text-xl font-heading font-bold text-white" ] [ text "Chart em tempo real" ]
+                , p [ class "text-sm text-austral-text-muted" ] [ text "Atualiza a cada evento WebSocket usando metrics.duration_ms." ]
+                ]
+            , span [ class "text-xs text-austral-primary font-mono" ] [ text (String.fromInt (List.length samples) ++ " samples") ]
+            ]
+        , div [ class "h-40 flex items-end gap-1 rounded-2xl bg-black/30 border border-austral-border p-3" ]
+            (if List.isEmpty samples then
+                [ div [ class "w-full text-center text-austral-text-muted text-sm self-center" ] [ text "Sem métricas ainda" ] ]
+
+             else
+                List.map bar samples
+            )
+        ]
+
+
+miniBars : List Float -> Html Msg
+miniBars samples =
+    let
+        lastSamples =
+            samples |> List.take 10 |> List.reverse
+
+        maxValue =
+            lastSamples |> List.maximum |> Maybe.withDefault 1 |> max 1
+
+        bar sample =
+            div [ class "flex-1 rounded-full bg-austral-primary/70", style "height" (String.fromFloat (max 6 ((sample / maxValue) * 48)) ++ "px") ] []
+    in
+    div [ class "mt-4 h-14 flex items-end gap-1" ] (List.map bar lastSamples)
+
+
+commandModal : Model -> Html Msg
+commandModal model =
+    case model.modalAgent of
+        Just agentId ->
+            div [ class "fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-6" ]
+                [ div [ class "w-full max-w-xl rounded-3xl border border-austral-border bg-austral-surface p-5 shadow-2xl" ]
+                    [ div [ class "flex items-start justify-between gap-4 mb-4" ]
+                        [ div []
+                            [ h2 [ class "text-2xl font-heading font-bold text-white" ] [ text "Comandar agent" ]
+                            , p [ class "text-sm text-austral-text-muted font-mono" ] [ text agentId ]
+                            ]
+                        , button [ onClick CloseCommand, class "text-austral-text-muted hover:text-white text-2xl px-2" ] [ text "×" ]
+                        ]
+                    , label [ class "text-sm font-semibold text-austral-primary" ] [ text "Prompt" ]
+                    , textarea [ value model.commandText, onInput UpdateCommand, rows 7, placeholder "Digite o comando para o agent...", class "mt-2 w-full rounded-2xl border border-austral-border bg-black/40 p-4 text-white outline-none focus:border-austral-primary" ] []
+                    , div [ class "mt-4 grid grid-cols-2 gap-3" ]
+                        [ button [ onClick ClearCommand, class "min-h-12 rounded-2xl border border-austral-border text-white font-bold" ] [ text "Limpar" ]
+                        , button [ onClick SendCommand, class "min-h-12 rounded-2xl bg-austral-primary text-austral-bg font-extrabold" ] [ text "Enviar" ]
+                        ]
+                    ]
+                ]
+
+        Nothing ->
+            text ""
+
+
+maybePercent : Maybe Float -> String
+maybePercent valueMaybe =
+    case valueMaybe of
+        Just n ->
+            String.fromInt (round n) ++ "%"
+
+        Nothing ->
+            "—"
+
+
+maybeMs : Maybe Float -> String
+maybeMs valueMaybe =
+    case valueMaybe of
+        Just n ->
+            String.fromInt (round n) ++ "ms"
+
+        Nothing ->
+            "—"
+
+
+maybeMb : Maybe Float -> String
+maybeMb valueMaybe =
+    case valueMaybe of
+        Just n ->
+            String.fromInt (round n) ++ "MB"
+
+        Nothing ->
+            "—"
+
+
+maybeCost : Maybe Float -> String
+maybeCost valueMaybe =
+    case valueMaybe of
+        Just n ->
+            "$" ++ String.fromFloat n
+
+        Nothing ->
+            "—"
+
+
+maybeTokens : Maybe Float -> Maybe Float -> String
+maybeTokens tokensIn tokensOut =
+    String.fromInt (round (Maybe.withDefault 0 tokensIn + Maybe.withDefault 0 tokensOut))
+
+
+agentEventDecoder : Decode.Decoder AgentPanel
+agentEventDecoder =
+    Decode.map8 buildAgentPanel
+        (Decode.field "agent" agentDecoder)
+        (Decode.maybe (Decode.field "event" eventDecoder))
+        (Decode.maybe (Decode.field "progress" progressDecoder))
+        (Decode.maybe (Decode.field "metrics" metricsDecoder))
+        (Decode.maybe (Decode.field "io" ioDecoder))
+        (Decode.maybe (Decode.field "ts" Decode.string))
+        (Decode.maybe (Decode.field "trace_id" Decode.string))
+        (Decode.maybe (Decode.field "task_id" Decode.string))
+        |> Decode.andThen
+            (\partial ->
+                Decode.map2 partial
+                    (Decode.maybe (Decode.field "step_id" Decode.string))
+                    (Decode.maybe (Decode.at [ "agent", "message" ] Decode.string))
+            )
+
+
+type alias AgentCore =
+    { id : String, name : String, role : String, runtime : String, host : String }
+
+
+type alias EventCore =
+    { eventType : String, status : String, severity : String, msg : String }
+
+
+type alias ProgressCore =
+    { percent : Maybe Float }
+
+
+type alias MetricsCore =
+    { durationMs : Maybe Float, memoryMb : Maybe Float, tokensIn : Maybe Float, tokensOut : Maybe Float, cost : Maybe Float }
+
+
+type alias IoCore =
+    { files : List String, commands : List String }
+
+
+agentDecoder : Decode.Decoder AgentCore
+agentDecoder =
+    Decode.map5 AgentCore
+        (Decode.field "id" Decode.string)
+        (Decode.maybe (Decode.field "name" Decode.string) |> Decode.map (Maybe.withDefault "Unnamed agent"))
+        (Decode.maybe (Decode.field "role" Decode.string) |> Decode.map (Maybe.withDefault "custom"))
+        (Decode.maybe (Decode.field "runtime" Decode.string) |> Decode.map (Maybe.withDefault "custom"))
+        (Decode.maybe (Decode.field "host" Decode.string) |> Decode.map (Maybe.withDefault "unknown"))
+
+
+eventDecoder : Decode.Decoder EventCore
+eventDecoder =
+    Decode.map4 EventCore
+        (Decode.maybe (Decode.field "type" Decode.string) |> Decode.map (Maybe.withDefault "agent.message"))
+        (Decode.maybe (Decode.field "status" Decode.string) |> Decode.map (Maybe.withDefault "ready"))
+        (Decode.maybe (Decode.field "severity" Decode.string) |> Decode.map (Maybe.withDefault "info"))
+        (Decode.maybe (Decode.field "msg" Decode.string) |> Decode.map (Maybe.withDefault "Evento recebido"))
+
+
+progressDecoder : Decode.Decoder ProgressCore
+progressDecoder =
+    Decode.map ProgressCore (Decode.maybe (Decode.field "percent" Decode.float))
+
+
+metricsDecoder : Decode.Decoder MetricsCore
+metricsDecoder =
+    Decode.map5 MetricsCore
+        (Decode.maybe (Decode.field "duration_ms" Decode.float))
+        (Decode.maybe (Decode.field "memory_mb" Decode.float))
+        (Decode.maybe (Decode.field "tokens_in" Decode.float))
+        (Decode.maybe (Decode.field "tokens_out" Decode.float))
+        (Decode.maybe (Decode.field "cost" Decode.float))
+
+
+ioDecoder : Decode.Decoder IoCore
+ioDecoder =
+    Decode.map2 IoCore
+        (Decode.maybe (Decode.field "files" (Decode.list Decode.string)) |> Decode.map (Maybe.withDefault []))
+        (Decode.maybe (Decode.field "commands" (Decode.list Decode.string)) |> Decode.map (Maybe.withDefault []))
+
+
+buildAgentPanel : AgentCore -> Maybe EventCore -> Maybe ProgressCore -> Maybe MetricsCore -> Maybe IoCore -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> Maybe String -> AgentPanel
+buildAgentPanel agent eventMaybe progressMaybe metricsMaybe ioMaybe ts traceId taskId stepId message =
+    let
+        event =
+            Maybe.withDefault (EventCore "agent.message" "ready" "info" "Mensagem recebida") eventMaybe
+
+        progress =
+            Maybe.withDefault (ProgressCore Nothing) progressMaybe
+
+        metrics =
+            Maybe.withDefault (MetricsCore Nothing Nothing Nothing Nothing Nothing) metricsMaybe
+
+        io =
+            Maybe.withDefault (IoCore [] []) ioMaybe
+
+        sample =
+            Maybe.withDefault 0 metrics.durationMs
+    in
+    { id = agent.id
+    , name = agent.name
+    , role = agent.role
+    , runtime = agent.runtime
+    , host = agent.host
+    , status = event.status
+    , severity = event.severity
+    , eventType = event.eventType
+    , eventMsg = event.msg
+    , traceId = Maybe.withDefault "trc_*" traceId
+    , taskId = Maybe.withDefault "tsk_*" taskId
+    , stepId = Maybe.withDefault "stp_*" stepId
+    , updatedAt = Maybe.withDefault "" ts
+    , progressPercent = progress.percent
+    , durationMs = metrics.durationMs
+    , memoryMb = metrics.memoryMb
+    , tokensIn = metrics.tokensIn
+    , tokensOut = metrics.tokensOut
+    , cost = metrics.cost
+    , commands = io.commands
+    , files = io.files
+    , message = message
+    , samples = if sample > 0 then [ sample ] else []
+    }
+
+
+upsertAgent : AgentPanel -> List AgentPanel -> List AgentPanel
+upsertAgent incoming agents =
+    let
+        merge existing =
+            if existing.id == incoming.id then
+                { incoming | samples = List.take 24 (incoming.samples ++ existing.samples), message = incoming.message |> Maybe.or existing.message }
+
+            else
+                existing
+    in
+    if List.any (\agent -> agent.id == incoming.id) agents then
+        List.map merge agents
+
+    else
+        incoming :: agents
+
+
+clearAgentMessage : String -> AgentPanel -> AgentPanel
+clearAgentMessage agentId agent =
+    if agent.id == agentId then
+        { agent | message = Nothing }
+
+    else
+        agent

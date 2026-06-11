@@ -46,13 +46,93 @@ function docs() {
   </main>`;
 }
 
+const commandEndpoint = 'http://195.35.19.148:13032/agents/coordinator';
+const websocketUrl = window.localStorage.getItem('agents_ws_url') || 'ws://195.35.19.148:13032/agents/events';
+const agentsState = { agents: new Map(), modalAgent: null, prompt: '', connected: false, socketStarted: false };
+const sh = (v) => String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+const metric = (label, value) => `<div class="rounded-2xl border border-austral-border bg-austral-bg/70 p-3"><p class="text-[11px] uppercase tracking-[0.18em] text-austral-text-muted">${label}</p><p class="text-lg font-bold text-white mt-1">${value ?? '—'}</p></div>`;
+const statusClass = (status) => ({ running:'bg-austral-primary/15 text-austral-primary', success:'bg-emerald-400/15 text-emerald-300', failed:'bg-red-400/15 text-red-300', blocked:'bg-amber-400/15 text-amber-300', offline:'bg-slate-400/15 text-slate-300' }[status] || 'bg-white/10 text-austral-text-muted');
+
+function normalizeAgentEvent(payload) {
+  const agent = payload.agent || {};
+  const event = payload.event || {};
+  const metrics = payload.metrics || {};
+  const progress = payload.progress || {};
+  const io = payload.io || {};
+  const previous = agentsState.agents.get(agent.id) || { samples: [] };
+  const duration = Number(metrics.duration_ms || 0);
+  return {
+    id: agent.id || 'agent.unknown', name: agent.name || 'Unnamed agent', role: agent.role || 'custom', runtime: agent.runtime || 'custom', host: agent.host || 'unknown',
+    status: event.status || 'ready', severity: event.severity || 'info', type: event.type || 'agent.message', msg: event.msg || 'Evento recebido',
+    trace: payload.trace_id || 'trc_*', task: payload.task_id || 'tsk_*', step: payload.step_id || 'stp_*',
+    progress: progress.percent, duration: metrics.duration_ms, memory: metrics.memory_mb,
+    tokens: Number(metrics.tokens_in || 0) + Number(metrics.tokens_out || 0), cost: metrics.cost,
+    files: Array.isArray(io.files) ? io.files : [], message: agent.message || previous.message || null,
+    samples: duration > 0 ? [duration, ...(previous.samples || [])].slice(0, 24) : (previous.samples || []),
+  };
+}
+
+function upsertAgentEvent(payload) {
+  const agent = normalizeAgentEvent(payload);
+  agentsState.agents.set(agent.id, agent);
+  if (location.pathname === '/dashboard') rerender();
+}
+
+function componentContractHtml() {
+  return `<section class="rounded-2xl border border-austral-border bg-austral-surface/60 p-5"><h2 class="text-xl font-heading font-bold text-white mb-2">Componentes declarados</h2><p class="text-sm text-austral-text-muted mb-4">Nome do componente e propriedade que entrega valor ao componente.</p><ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">${[['AgentGrid','agents'],['AgentSection','agent'],['RealtimeChart','samples'],['MetricTile','metric'],['CommandModal','agent_id'],['MessageOverlay','agent.message']].map(([c,p])=>`<li class="rounded-xl border border-austral-border bg-black/20 p-3"><span class="text-white font-semibold">${c}</span><span class="text-austral-text-muted"> ← ${p}</span></li>`).join('')}</ul></section>`;
+}
+
+function realtimeChartHtml() {
+  const samples = [...agentsState.agents.values()].flatMap((agent) => agent.samples || []).slice(0, 24).reverse();
+  const max = Math.max(1, ...samples);
+  const bars = samples.length ? samples.map((sample) => `<div class="flex-1 rounded-t-lg bg-gradient-to-t from-austral-primary to-austral-pink min-w-2" style="height:${Math.max(8, (sample / max) * 100)}%" title="${sample}ms"></div>`).join('') : '<div class="w-full text-center text-austral-text-muted text-sm self-center">Sem métricas ainda</div>';
+  return `<section class="rounded-3xl border border-austral-border bg-austral-surface/70 p-5"><div class="flex items-center justify-between gap-3 mb-4"><div><h2 class="text-xl font-heading font-bold text-white">Chart em tempo real</h2><p class="text-sm text-austral-text-muted">Atualiza a cada evento WebSocket usando metrics.duration_ms.</p></div><span class="text-xs text-austral-primary font-mono">${samples.length} samples</span></div><div class="h-40 flex items-end gap-1 rounded-2xl bg-black/30 border border-austral-border p-3">${bars}</div></section>`;
+}
+
+function agentSectionHtml(agent) {
+  const miniMax = Math.max(1, ...(agent.samples || [1]));
+  const mini = (agent.samples || []).slice(0, 10).reverse().map((sample) => `<div class="flex-1 rounded-full bg-austral-primary/70" style="height:${Math.max(6, (sample / miniMax) * 48)}px"></div>`).join('');
+  const overlay = agent.message ? `<div data-agent-message="${sh(agent.id)}" class="absolute inset-0 z-10 flex items-center justify-center rounded-2xl p-4 text-center" style="background-color:#000;color:#fff;font-size:16px;font-weight:700">${sh(agent.message)}</div>` : '';
+  return `<section class="relative overflow-hidden rounded-3xl border border-austral-border bg-austral-surface/80 p-4 sm:p-5 shadow-xl"><div class="flex items-start justify-between gap-3 mb-4"><div class="min-w-0"><p class="text-xs text-austral-primary font-mono truncate">${sh(agent.id)}</p><h3 class="text-xl font-heading font-bold text-white truncate">${sh(agent.name)}</h3><p class="text-sm text-austral-text-muted">${sh(agent.role)} · ${sh(agent.runtime)} · ${sh(agent.host)}</p></div><button data-command-agent="${sh(agent.id)}" class="min-h-12 px-5 rounded-2xl bg-austral-primary text-austral-bg font-extrabold active:scale-95">Comandar</button></div><div class="flex flex-wrap gap-2 mb-4"><span class="px-3 py-1 rounded-full text-xs font-bold ${statusClass(agent.status)}">${sh(agent.status)}</span><span class="px-3 py-1 rounded-full text-xs font-bold bg-austral-pink/15 text-austral-pink">${sh(agent.severity)}</span><span class="px-3 py-1 rounded-full bg-white/5 text-xs text-austral-text-muted">${sh(agent.type)}</span></div><div class="rounded-2xl border border-austral-border bg-black/20 p-4 mb-4"><p class="text-xs uppercase tracking-[0.2em] text-austral-primary mb-2">Último evento</p><p class="text-white font-semibold">${sh(agent.msg)}</p><p class="text-xs text-austral-text-muted mt-2">trace ${sh(agent.trace)} · task ${sh(agent.task)} · step ${sh(agent.step)}</p></div><div class="relative"><div class="grid grid-cols-2 gap-3">${metric('Progresso', agent.progress == null ? '—' : `${Math.round(agent.progress)}%`)}${metric('Duração', agent.duration == null ? '—' : `${Math.round(agent.duration)}ms`)}${metric('Memória', agent.memory == null ? '—' : `${Math.round(agent.memory)}MB`)}${metric('Tokens', agent.tokens)}${metric('Custo', agent.cost == null ? '—' : `$${agent.cost}`)}${metric('Arquivos', agent.files.length)}</div>${overlay}</div><div class="mt-4 h-14 flex items-end gap-1">${mini}</div></section>`;
+}
+
+function commandModalHtml() {
+  if (!agentsState.modalAgent) return '';
+  return `<div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-6"><div class="w-full max-w-xl rounded-3xl border border-austral-border bg-austral-surface p-5 shadow-2xl"><div class="flex items-start justify-between gap-4 mb-4"><div><h2 class="text-2xl font-heading font-bold text-white">Comandar agent</h2><p class="text-sm text-austral-text-muted font-mono">${sh(agentsState.modalAgent)}</p></div><button data-close-command class="text-austral-text-muted hover:text-white text-2xl px-2">×</button></div><label class="text-sm font-semibold text-austral-primary">Prompt</label><textarea data-command-prompt rows="7" placeholder="Digite o comando para o agent..." class="mt-2 w-full rounded-2xl border border-austral-border bg-black/40 p-4 text-white outline-none focus:border-austral-primary">${sh(agentsState.prompt)}</textarea><div class="mt-4 grid grid-cols-2 gap-3"><button data-clear-command class="min-h-12 rounded-2xl border border-austral-border text-white font-bold">Limpar</button><button data-send-command class="min-h-12 rounded-2xl bg-austral-primary text-austral-bg font-extrabold">Enviar</button></div></div></div>`;
+}
+
+function agentsDashboardHtml() {
+  const agents = [...agentsState.agents.values()];
+  const grid = agents.length ? `<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">${agents.map(agentSectionHtml).join('')}</div>` : '<div class="rounded-3xl border border-dashed border-austral-border bg-austral-surface/40 p-8 text-center"><h3 class="text-2xl font-heading font-bold text-white mb-3">Aguardando eventos</h3><p class="text-austral-text-muted">Quando um JSON com agent.id chegar via WebSocket, uma nova section será criada automaticamente.</p></div>';
+  return `<div class="space-y-8">${header('Multi-agent Observability','Dashboard em tempo real: cada novo agent.id recebido pelo WebSocket cria uma seção dinâmica; eventos posteriores atualizam apenas o card daquele agente.')}${componentContractHtml()}${realtimeChartHtml()}<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-2xl border border-austral-border bg-austral-surface/70 p-4"><div><p class="text-xs uppercase tracking-[0.25em] text-austral-primary font-bold">WebSocket</p><p class="text-white font-semibold">${agentsState.connected ? 'Tempo real ativo' : 'Conectando websocket'}</p></div><span class="text-austral-text-muted text-sm">${agents.length} agents observados</span></div>${grid}${commandModalHtml()}</div>`;
+}
+
+function connectAgentsWebSocketFallback() {
+  if (agentsState.socketStarted || !('WebSocket' in window)) return;
+  agentsState.socketStarted = true;
+  let retryMs = 1000;
+  const open = () => {
+    const ws = new WebSocket(websocketUrl);
+    ws.addEventListener('open', () => { agentsState.connected = true; retryMs = 1000; if (location.pathname === '/dashboard') rerender(); });
+    ws.addEventListener('message', (event) => { try { upsertAgentEvent(JSON.parse(event.data)); } catch {} });
+    ws.addEventListener('close', () => { agentsState.connected = false; if (location.pathname === '/dashboard') rerender(); window.setTimeout(open, retryMs); retryMs = Math.min(retryMs * 2, 15000); });
+    ws.addEventListener('error', () => ws.close());
+  };
+  open();
+}
+
+function rerender() {
+  const node = document.getElementById('root');
+  if (node) node.innerHTML = `${nav()}${route()}`;
+}
+
 function route() {
   const path = location.pathname;
   if (path === '/blog') return shell(header('Austral Blog','Essays and proposals about linear types, security, resource governance and the Austral language.') + `<div class="grid md:grid-cols-2 gap-6 mt-10">${['Dawn of Linearity','The Language for Building Pyramids','Understanding the Use-Once Rule','Security Architecture Proposal','Secure-by-Design PQC','The Scuttle the Ship Philosophy'].map(t=>`<a href="/blog/article" class="block rounded-2xl border border-austral-border bg-austral-surface/70 p-6 hover:border-austral-pink transition"><h3 class="text-xl font-heading font-bold text-white mb-3">${t}</h3><p class="text-austral-text-muted">Read the archived article and continue the discussion around Austral's design.</p></a>`).join('')}</div>`);
   if (path === '/examples') return shell(header('Examples','Small Austral programs rendered by Elm components.') + `<div class="grid lg:grid-cols-2 gap-6 mt-10">${codeBlock('Hello.aui','module Hello is\n    function main(): Unit;\nend module.')}${codeBlock('Hello.aum','module body Hello is\n    function main(): Unit is\n        print("Hello, world!");\n        return nil;\n    end;\nend module body.')}${codeBlock('Result.aum','union Result[T: Free, E: Free]: Free is\n    case Success is\n        value: T;\n    case Failure is\n        error: E;\nend;')}${codeBlock('Memory.aum','let ptr: Address[Int32] := allocate(1);\n-- ... use pointer ...\ndeallocate(ptr);')}</div>`);
   if (path === '/projects') return shell(header('Projects','Reference projects and ecosystem experiments around Austral.') + `<div class="grid md:grid-cols-3 gap-6 my-6">${card('Austral compiler','Core compiler and specification work.')}${card('Aurora package hub','Registry, vault and publishing workflow.','text-austral-pink')}${card('vite.elm','The new Vite framework plugin and React-to-Elm converter powering this migration.')}</div>`);
   if (path === '/vault') return shell(header('Aurora Vault','A package index concept for Austral libraries and tools.') + `<div class="grid md:grid-cols-3 gap-6 my-6">${card('one-llm-4-all','Provider-rotation utilities for LLM integrations.')}${card('austral-memory','Safe memory governance primitives.','text-austral-pink')}${card('capability-kit','Capability-oriented application patterns.')}</div>`);
-  if (path === '/dashboard') return shell(header('Dashboard','The development dashboard route remains available in Elm. The save-post and upload-media Vite middleware was kept in vite.config.ts.'));
+  if (path === '/dashboard') return shell(agentsDashboardHtml());
   if (path.startsWith('/blog/')) return shell(header('Blog article','The Elm migration keeps the static article catalog available. Markdown rendering can be reintroduced through Elm ports or precompiled content.') + codeBlock('vite.elm/converter','npm run convert:react -- --out converted-elm'));
   if (path.startsWith('/vault/')) return shell(header('Package details','Package detail routes are now served by Elm. Connect live package metadata through Elm flags or generated modules when the registry API is ready.'));
   return docs();
@@ -62,15 +142,38 @@ export const Elm = {
   Main: {
     init({ node }) {
       node.innerHTML = `${nav()}${route()}`;
-      document.addEventListener('click', (event) => {
+      connectAgentsWebSocketFallback();
+      document.addEventListener('input', (event) => {
+        if (event.target.matches('[data-command-prompt]')) agentsState.prompt = event.target.value;
+      });
+      document.addEventListener('dblclick', (event) => {
+        const overlay = event.target.closest('[data-agent-message]');
+        if (!overlay) return;
+        const agent = agentsState.agents.get(overlay.dataset.agentMessage);
+        if (agent) agent.message = null;
+        rerender();
+      });
+      document.addEventListener('click', async (event) => {
+        const command = event.target.closest('[data-command-agent]');
+        if (command) { agentsState.modalAgent = command.dataset.commandAgent; agentsState.prompt = ''; rerender(); return; }
+        if (event.target.closest('[data-close-command]')) { agentsState.modalAgent = null; agentsState.prompt = ''; rerender(); return; }
+        if (event.target.closest('[data-clear-command]')) { agentsState.prompt = ''; rerender(); return; }
+        if (event.target.closest('[data-send-command]')) {
+          try {
+            await fetch(commandEndpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: agentsState.prompt, agent_id: agentsState.modalAgent }) });
+          } catch {
+            upsertAgentEvent({ agent: { id: agentsState.modalAgent, message: 'Envio falhou' }, event: { type: 'step.error', status: 'blocked', severity: 'error', msg: 'Envio falhou' } });
+          }
+          agentsState.modalAgent = null; agentsState.prompt = ''; rerender(); return;
+        }
         const anchor = event.target.closest('a[href^="/"]');
         if (!anchor) return;
         event.preventDefault();
         history.pushState(null, '', anchor.getAttribute('href'));
-        node.innerHTML = `${nav()}${route()}`;
+        rerender();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-      window.addEventListener('popstate', () => { node.innerHTML = `${nav()}${route()}`; });
+      window.addEventListener('popstate', rerender);
       return {};
     },
   },
