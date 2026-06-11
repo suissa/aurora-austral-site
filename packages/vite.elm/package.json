@@ -1,0 +1,17 @@
+{
+  "name": "vite.elm",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A tiny Vite framework plugin for Elm with a React-to-Elm component converter.",
+  "exports": {
+    ".": "./src/index.js",
+    "./converter": "./src/converter.js"
+  },
+  "bin": {
+    "vite-elm-convert": "./bin/vite-elm-convert.js"
+  },
+  "peerDependencies": {
+    "vite": ">=5",
+    "elm": "^0.19.1-6"
+  }
+}

@@ -32,3 +32,6 @@ blog/medias/videos/
 *.njsproj
 *.sln
 *.sw?
+
+# Elm build artifacts
+elm-stuff/
